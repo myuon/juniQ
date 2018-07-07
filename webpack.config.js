@@ -1,26 +1,30 @@
+var path = require('path');
+
 module.exports = {
-    // モード値を production に設定すると最適化された状態で、
-    // development に設定するとソースマップ有効でJSファイルが出力される
-    mode: 'development',
-   
-    // メインとなるJavaScriptファイル（エントリーポイント）
-    entry: './src/tsc/main.ts',
-   
-    module: {
-      rules: [
-        {
-          // 拡張子 .ts の場合
-          test: /\.ts$/,
-          // TypeScript をコンパイルする
-          use: 'ts-loader',
-          exclude: /node_modules/
-        }
-      ]
-    },
-    // import 文で .ts ファイルを解決するため
-    resolve: {
-      extensions: [
-        '.ts'
-      ]
-    }
-  };
+  mode: 'development',
+  entry: './src/tsc/main.ts',
+  devtool: 'source-map',
+  
+  module: {
+    rules: [
+      {
+        exclude: /node_modules/,
+        test: /\.ts$/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: { presets: ["env"] }
+          },
+          {
+            loader: 'ts-loader',
+          }
+        ]
+      },
+    ],
+  },
+
+  resolve: {
+    modules: [ 'src', 'node_modules' ],
+    extensions: [ '.ts', '.js' ]
+  },
+};

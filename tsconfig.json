@@ -1,7 +1,17 @@
 {
-    "compilerOptions": {
-      "sourceMap": true,
-      "target": "es5", // TSはECMAScript 5に変換
-      "module": "commonjs"
+  "compilerOptions": {
+    "sourceMap": false,
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "classic",
+    "lib": [ "es2015", "dom" ],
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "src/tsc/*",
+        "node_modules/*",
+        "./cubism-js/src/live2dcubismcore.d.ts"
+      ]
     }
+  }
 }
