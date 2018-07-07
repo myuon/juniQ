@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "sourceMap": false,
-    "target": "es5",
+    "target": "es2015",
     "module": "commonjs",
     "moduleResolution": "classic",
     "lib": [ "es2015", "dom" ],
@@ -10,7 +10,7 @@
       "*": [
         "src/tsc/*",
         "node_modules/*",
-        "./cubism-js/src/live2dcubismcore.d.ts"
+        "cubism-js/src/*"
       ]
     }
   }
