@@ -9,6 +9,13 @@ interface Configurer {
     size: [number, number];
 }
 
+interface ModelParameter {
+    id: string,
+    default: number,
+    min: number,
+    max: number,
+}
+
 class Mover {
     enabled: boolean;
     offset: [number, number];
@@ -142,9 +149,19 @@ class App {
     };
 
     sendToParent = () => {
+        let parameters: ModelParameter[] = [];
+        for (let i in this.model.parameters.ids) {
+            parameters.push({
+                id: this.model.parameters.ids[i],
+                default: this.model.parameters.defaultValues[i],
+                min: this.model.parameters.minimumValues[i],
+                max: this.model.parameters.maximumValues[i],
+            });
+        }
+
         let object = {
             size: this.size,
-            parameters: this.model.parameters,
+            parameters: parameters,
         };
 
         window.parent.postMessage(object, "*");
