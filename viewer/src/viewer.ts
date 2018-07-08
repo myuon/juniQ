@@ -67,7 +67,7 @@ class App {
             .add('moc', config.moc, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.BUFFER })
             .add('texture', config.texture)
             .add('physics', config.physics, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON })
-            .load((loader, resources) => {
+            .load((loader: PIXI.loaders.Loader, resources: PIXI.loaders.ResourceDictionary) => {
                 this.app = new PIXI.Application(this.size[0], this.size[1], { backgroundColor: 0x1099bb });
                 document.body.appendChild(this.app.view);
 
@@ -116,12 +116,12 @@ class App {
 
     // この辺の処理が必要なのはSDKのバグなのかそれとも仕様なのか…
     processModel = () => {
-        let orders = [];
+        let orders: [string, number][] = [];
         for (let k in this.model.drawables.ids) {
             orders.push([this.model.drawables.ids[k], this.model.drawables.renderOrders[k]]);
         }
-        orders.sort((x,y) => x[1] - y[1]);
-
+        orders.sort((x:[string, number], y: [string, number]) => x[1] - y[1]);
+        
         this.model.removeChildren();
         for (let [mesh_name, _] of orders) {
             let mesh = this.model.getModelMeshById(mesh_name);

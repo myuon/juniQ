@@ -4,8 +4,8 @@
   "description": "",
   "main": "src/viewer.ts",
   "scripts": {
-    "build": "webpack",
-    "watch": "webpack -w"
+    "build": "tsc",
+    "watch": "tsc -w"
   },
   "keywords": [],
   "author": "",
