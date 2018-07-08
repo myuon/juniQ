@@ -3,15 +3,33 @@
   <head>
     <meta charset="UTF-8">
     <title>JuniQ</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
     <script>
         window.addEventListener('message', function(event) {
           let elem = document.getElementById("viewer");
-          elem.style.width = `${event.data[0]}px`;
-          elem.style.height = `${event.data[1]}px`;
-        });
+          elem.style.width = `${event.data.size[0]}px`;
+          elem.style.height = `${event.data.size[1]}px`;
+
+          let parameters = event.data.parameters;
+          for (let index in parameters.ids) {
+            console.log(parameters.ids[index]);
+            let div = document.getElementById("parameter-controls");
+            div.innerHTML += (
+              `<div class="pure-g" style="padding: 10px;">
+                <div class="pure-u-1-3" style="text-align: right;">${parameters.ids[index]}</div>
+                <div class="pure-u-1-3" style="text-align: center;"><input type="range" value="50" class="pure-u-2-5" /></div>
+                <div class="pure-u-1-3"><input type="text" value="0.0" class="pure-u-1-5" /></div>
+              </div>`
+            );
+          }
+          console.log(event.data.parameters);
+        }, { once: true });
       </script>
     </head>
   <body>
+    <div id="parameter-controls" style="float: left; width: 400px">
+      パラメータ
+    </div>
     <iframe id="viewer" src="dist/main.html" scrolling="no" frameborder="0"></iframe>
   </body>
 </html>

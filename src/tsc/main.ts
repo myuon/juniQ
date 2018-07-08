@@ -82,14 +82,13 @@ class App {
                 this.processModel();
                 this.setStageTransform();
                 this.onResize();
+
+                this.sendToParent();
             }
         );
 
         // resize
         window.addEventListener('resize', this.onResize);
-
-        // iframe size
-        window.parent.postMessage(this.size, "*");
 
         // move event handling
         let mover = new Mover((distance: [number, number]) => {
@@ -141,6 +140,15 @@ class App {
         this.model.scale = new PIXI.Point(this.model.position.x, this.model.position.x);
         this.model.masks.resize(this.app.view.width, this.app.view.height);
     };
+
+    sendToParent = () => {
+        let object = {
+            size: this.size,
+            parameters: this.model.parameters,
+        };
+
+        window.parent.postMessage(object, "*");
+    };
 }
 
 let app = new App({
@@ -148,6 +156,6 @@ let app = new App({
     moc: "../assets/yugure_neko_avatar/suzune_neko_chara_export.moc3",
     texture: "../assets/yugure_neko_avatar/suzune_neko_chara_export.2048/texture_00.png",
     physics: "../assets/yugure_neko_avatar/suzune_neko_chara_export.physics3.json",
-    position: [640, 600],
-    scaler: [1.0, 1.0],
+    position: [512, 720],
+    scaler: [1.5, 1.5],
 });
