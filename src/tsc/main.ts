@@ -103,7 +103,11 @@ class App {
             }
         );
 
+        // resize
         window.addEventListener('resize', this.onResize);
+
+        // iframe size
+        window.parent.postMessage(this.size, "*");
 
         // move event handling
         let mover = new Mover((distance: [number, number]) => {
@@ -138,7 +142,7 @@ class App {
 }
 
 let app = new App({
-    size: [1280, 720],
+    size: [1024, 720],
     moc: "../assets/yugure_neko_avatar/suzune_neko_chara_export.moc3",
     texture: "../assets/yugure_neko_avatar/suzune_neko_chara_export.2048/texture_00.png",
     physics: "../assets/yugure_neko_avatar/suzune_neko_chara_export.physics3.json",

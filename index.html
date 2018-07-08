@@ -3,8 +3,15 @@
   <head>
     <meta charset="UTF-8">
     <title>JuniQ</title>
-  </head>
+    <script>
+        window.addEventListener('message', function(event) {
+          let elem = document.getElementById("viewer");
+          elem.style.width = `${event.data[0]}px`;
+          elem.style.height = `${event.data[1]}px`;
+        });
+      </script>
+    </head>
   <body>
-    <iframe src="dist/main.html" scrolling="no" frameborder="0" width="1280" height="720"></iframe>
+    <iframe id="viewer" src="dist/main.html" scrolling="no" frameborder="0"></iframe>
   </body>
 </html>
