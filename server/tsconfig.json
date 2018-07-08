@@ -4,14 +4,13 @@
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "classic",
-    "lib": [ "es2015", "dom", "es5" ],
+    "lib": [ "es2015", "es5" ],
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "*": [
         "src/*",
-        "cubism-js/src/*"
-      ]
+      ] 
     },
   },
   "exclude": [

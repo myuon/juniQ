@@ -8,7 +8,7 @@ let server = new http.Server(app);
 let io = socketio(server);
 
 app.get('/', (req, res) => {
-  res.sendFile(path.resolve('view/viewer.html'));
+  res.send('/');
 });
 
 app.get('/dist/**', (req, res) => {

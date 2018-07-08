@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "classic",
+    "lib": [ "es2015", "dom" ],
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "src/*",
+        "cubism-js/src/*"
+      ]
+    },
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
