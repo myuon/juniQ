@@ -5,7 +5,7 @@ import * as express from 'express';
 
 let app = express();
 let server = new http.Server(app);
-let io = socketio(http);
+let io = socketio(server);
 
 app.get('/', (req, res) => {
   res.sendFile(path.resolve('view/viewer.html'));
@@ -13,6 +13,10 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('connect!');
+
+  socket.on('click!', (msg) => {
+    console.log('get click! signal: ' + msg);
+  });
 });
 
 server.listen(3000, () => {
