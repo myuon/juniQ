@@ -9,6 +9,41 @@ interface Configurer {
     size: [number, number];
 }
 
+class Mover {
+    enabled: boolean;
+    offset: [number, number];
+    callback: (_: [number, number]) => void;
+
+    constructor(callback: (_: [number,number]) => void) {
+        this.callback = callback;
+    }
+
+    enable = () => {
+        this.enabled = true;
+    };
+
+    disable = () => {
+        this.enabled = false;
+    };
+
+    onMouseDown = (event: MouseEvent) => {
+        this.enable();
+        this.offset = [event.pageX, event.pageY];
+    };
+
+    onMouseMove = (event: MouseEvent) => {
+        if (this.enabled) {
+            const mover: [number, number] = [event.pageX - this.offset[0], event.pageY - this.offset[1]];
+            this.callback(mover);
+            this.offset = [event.pageX, event.pageY];
+        }
+    };
+
+    onMouseUp = (event: MouseEvent) => {
+        this.disable();
+    };
+}
+
 class App {
     app: PIXI.Application;
     model: LIVE2DCUBISMPIXI.Model;
@@ -43,7 +78,6 @@ class App {
 
                 this.app.stage.addChild(this.model);
                 this.app.stage.addChild(this.model.masks);
-                this.app.stage.setTransform(this.position[0], this.position[1], this.scaler[0], this.scaler[1], 0, 0, 0, 0, 0);
 
                 {
                     let orders = [];
@@ -63,14 +97,28 @@ class App {
                         this.model.addChild(mesh);
                     }
                 };
+
+                this.setStageTransform();
                 this.onResize();
             }
         );
 
         window.addEventListener('resize', this.onResize);
+
+        let mover = new Mover((distance: [number, number]) => {
+            this.position = [this.position[0] + distance[0], this.position[1] + distance[1]];
+            this.setStageTransform();
+        });
+        window.addEventListener('mousedown', mover.onMouseDown);
+        window.addEventListener('mousemove', mover.onMouseMove);
+        window.addEventListener('mouseup', mover.onMouseUp);
     }
 
-    onResize(event: any = null) {
+    setStageTransform = () => {
+        this.app.stage.setTransform(this.position[0], this.position[1], this.scaler[0], this.scaler[1], 0, 0, 0, 0, 0);
+    }
+
+    onResize = (event: Event = null) => {
         this.app.view.style.width = this.size[0] + "px";
         this.app.view.style.height = this.size[1] + "px";
         this.app.renderer.resize(this.size[0], this.size[1]);
