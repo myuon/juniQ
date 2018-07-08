@@ -45,7 +45,7 @@ class App {
                 this.app.stage.addChild(this.model.masks);
                 this.app.stage.setTransform(this.position[0], this.position[1], this.scaler[0], this.scaler[1], 0, 0, 0, 0, 0);
 
-                const reorder = function(this) {
+                {
                     let orders = [];
                     for (let k in this.model.drawables.ids) {
                         orders.push([this.model.drawables.ids[k], this.model.drawables.renderOrders[k]]);
@@ -62,8 +62,7 @@ class App {
 
                         this.model.addChild(mesh);
                     }
-                }.bind(this);
-                reorder();
+                };
                 this.onResize();
             }
         );
