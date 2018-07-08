@@ -11,6 +11,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve('view/viewer.html'));
 });
 
+app.get('/dist/**', (req, res) => {
+  res.sendFile(path.resolve('.' + req.path));
+});
+
 io.on('connection', (socket) => {
   console.log('connect!');
 

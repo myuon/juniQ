@@ -4,8 +4,9 @@
   "description": "",
   "main": "./src/index.ts",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w"
+    "build:server": "tsc",
+    "watch": "tsc -w",
+    "build:client": "webpack"
   },
   "author": "",
   "license": "MIT",
@@ -14,9 +15,13 @@
     "@types/node": "^10.5.2",
     "@types/pixi.js": "^4.8.0",
     "@types/socket.io": "^1.4.36",
+    "babel-loader": "^7.1.5",
     "express": "^4.16.3",
     "pixi.js": "^4.8.1",
     "socket.io": "^2.1.1",
-    "typescript": "^2.9.2"
+    "ts-loader": "^4.4.2",
+    "typescript": "^2.9.2",
+    "webpack": "^4.15.1",
+    "webpack-cli": "^3.0.8"
   }
 }
