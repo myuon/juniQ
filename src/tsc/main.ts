@@ -79,25 +79,7 @@ class App {
                 this.app.stage.addChild(this.model);
                 this.app.stage.addChild(this.model.masks);
 
-                {
-                    let orders = [];
-                    for (let k in this.model.drawables.ids) {
-                        orders.push([this.model.drawables.ids[k], this.model.drawables.renderOrders[k]]);
-                    }
-                    orders.sort((x,y) => x[1] - y[1]);
-
-                    this.model.removeChildren();
-                    for (let [mesh_name, _] of orders) {
-                        let mesh = this.model.getModelMeshById(mesh_name);
-
-                        // 余計なmaskを削り取る
-                        // 正気か？
-                        mesh.mask = null;
-
-                        this.model.addChild(mesh);
-                    }
-                };
-
+                this.processModel();
                 this.setStageTransform();
                 this.onResize();
             }
@@ -126,9 +108,29 @@ class App {
         });
     }
 
+    // この辺の処理が必要なのはSDKのバグなのかそれとも仕様なのか…
+    processModel = () => {
+        let orders = [];
+        for (let k in this.model.drawables.ids) {
+            orders.push([this.model.drawables.ids[k], this.model.drawables.renderOrders[k]]);
+        }
+        orders.sort((x,y) => x[1] - y[1]);
+
+        this.model.removeChildren();
+        for (let [mesh_name, _] of orders) {
+            let mesh = this.model.getModelMeshById(mesh_name);
+
+            // 余計なmaskを削り取る
+            // 正気か？
+            mesh.mask = null;
+
+            this.model.addChild(mesh);
+        }
+    };
+
     setStageTransform = () => {
         this.app.stage.setTransform(this.position[0], this.position[1], this.scaler[0], this.scaler[1], 0, 0, 0, this.size[0] / 2, this.size[1] / 2);
-    }
+    };
 
     onResize = (event: Event = null) => {
         this.app.view.style.width = this.size[0] + "px";
