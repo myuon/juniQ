@@ -2,7 +2,7 @@ var path = require('path');
 
 module.exports = {
   mode: 'development',
-  entry: './src/tsc/main.ts',
+  entry: './src/main.ts',
   devtool: 'source-map',
   
   module: {

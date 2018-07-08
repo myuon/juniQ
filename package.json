@@ -2,13 +2,14 @@
   "name": "juniq",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/tsc/main.ts",
+  "main": "./src/main.ts",
   "scripts": {
     "build": "webpack"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "^10.5.2",
     "@types/pixi.js": "^4.8.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
