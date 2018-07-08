@@ -1,14 +1,12 @@
 import * as PIXI from 'pixi.js';
 
-const WIDTH = 1280;
-const HEIGHT = 720;
-
 interface Configurer {
     moc: string;
     texture: string;
     physics: string;
     position?: [number, number];
-    scaler?: [number, number]
+    scaler?: [number, number];
+    size: [number, number];
 }
 
 class App {
@@ -16,17 +14,19 @@ class App {
     model: LIVE2DCUBISMPIXI.Model;
     position: [number, number];
     scaler: [number, number];
+    size: [number, number];
 
     constructor(config: Configurer) {
         this.position = config.position != null ? config.position : [0,0];
         this.scaler = config.scaler != null ? config.scaler : [1.0, 1.0];
+        this.size = config.size;
 
         PIXI.loader
             .add('moc', config.moc, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.BUFFER })
             .add('texture', config.texture)
             .add('physics', config.physics, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON })
             .load((loader, resources) => {
-                this.app = new PIXI.Application(WIDTH, HEIGHT, { backgroundColor: 0x1099bb });
+                this.app = new PIXI.Application(this.size[0], this.size[1], { backgroundColor: 0x1099bb });
                 document.body.appendChild(this.app.view);
 
                 let moc = LIVE2DCUBISMCORE.Moc.fromArrayBuffer(resources['moc'].data);
@@ -72,17 +72,18 @@ class App {
     }
 
     onResize(event: any = null) {
-        this.app.view.style.width = WIDTH + "px";
-        this.app.view.style.height = HEIGHT + "px";
-        this.app.renderer.resize(WIDTH, HEIGHT);
+        this.app.view.style.width = this.size[0] + "px";
+        this.app.view.style.height = this.size[1] + "px";
+        this.app.renderer.resize(this.size[0], this.size[1]);
 
-        this.model.position = new PIXI.Point((WIDTH * 0.5), (HEIGHT * 0.5));
+        this.model.position = new PIXI.Point((this.size[0] * 0.5), (this.size[1] * 0.5));
         this.model.scale = new PIXI.Point((this.model.position.x * 0.8), (this.model.position.x * 0.8));
         this.model.masks.resize(this.app.view.width, this.app.view.height);
     };
 }
 
 let app = new App({
+    size: [1280, 720],
     moc: "../assets/yugure_neko_avatar/suzune_neko_chara_export.moc3",
     texture: "../assets/yugure_neko_avatar/suzune_neko_chara_export.2048/texture_00.png",
     physics: "../assets/yugure_neko_avatar/suzune_neko_chara_export.physics3.json",
