@@ -105,6 +105,7 @@ class App {
 
         window.addEventListener('resize', this.onResize);
 
+        // move event handling
         let mover = new Mover((distance: [number, number]) => {
             this.position = [this.position[0] + distance[0], this.position[1] + distance[1]];
             this.setStageTransform();
@@ -112,10 +113,17 @@ class App {
         window.addEventListener('mousedown', mover.onMouseDown);
         window.addEventListener('mousemove', mover.onMouseMove);
         window.addEventListener('mouseup', mover.onMouseUp);
+
+        // scale up/down event handling
+        window.addEventListener('wheel', (event: WheelEvent) => {
+            let coeff = (event.deltaY > 0 ? -1 : 1) * 0.1;
+            this.scaler = [this.scaler[0] + coeff, this.scaler[1] + coeff];
+            this.setStageTransform();
+        });
     }
 
     setStageTransform = () => {
-        this.app.stage.setTransform(this.position[0], this.position[1], this.scaler[0], this.scaler[1], 0, 0, 0, 0, 0);
+        this.app.stage.setTransform(this.position[0], this.position[1], this.scaler[0], this.scaler[1], 0, 0, 0, this.size[0] / 2, this.size[1] / 2);
     }
 
     onResize = (event: Event = null) => {
@@ -124,7 +132,7 @@ class App {
         this.app.renderer.resize(this.size[0], this.size[1]);
 
         this.model.position = new PIXI.Point((this.size[0] * 0.5), (this.size[1] * 0.5));
-        this.model.scale = new PIXI.Point((this.model.position.x * 0.8), (this.model.position.x * 0.8));
+        this.model.scale = new PIXI.Point(this.model.position.x, this.model.position.x);
         this.model.masks.resize(this.app.view.width, this.app.view.height);
     };
 }
@@ -134,6 +142,6 @@ let app = new App({
     moc: "../assets/yugure_neko_avatar/suzune_neko_chara_export.moc3",
     texture: "../assets/yugure_neko_avatar/suzune_neko_chara_export.2048/texture_00.png",
     physics: "../assets/yugure_neko_avatar/suzune_neko_chara_export.physics3.json",
-    position: [-600, 250],
-    scaler: [2.0, 2.0],
+    position: [640, 600],
+    scaler: [1.0, 1.0],
 });
