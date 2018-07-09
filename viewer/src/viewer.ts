@@ -121,7 +121,7 @@ class App {
             orders.push([this.model.drawables.ids[k], this.model.drawables.renderOrders[k]]);
         }
         orders.sort((x:[string, number], y: [string, number]) => x[1] - y[1]);
-        
+
         this.model.removeChildren();
         for (let [mesh_name, _] of orders) {
             let mesh = this.model.getModelMeshById(mesh_name);
@@ -170,7 +170,7 @@ class App {
 
 let app = new App({
     size: [1024, 720],
-    moc: "../assets/yugure_neko_avatar/suzune_neko_chara_export.moc3",
+    moc: "hogehogheoge",
     texture: "../assets/yugure_neko_avatar/suzune_neko_chara_export.2048/texture_00.png",
     physics: "../assets/yugure_neko_avatar/suzune_neko_chara_export.physics3.json",
     position: [512, 720],

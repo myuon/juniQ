@@ -7,11 +7,21 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "src/*",
+        "cubism-js/src/*",
+        "node_modules/"
+      ]
+    }
   },
   "files": [
     "cubism-js/src/live2dcubismcore.d.ts",
     "cubism-js/src/live2dcubismframework.ts",
     "cubism-js/src/live2dcubismpixi.ts",
+    "src/index.ts",
+    "src/viewer.ts"
   ]
 }
