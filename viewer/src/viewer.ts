@@ -2,6 +2,7 @@ interface Configurer {
     moc: string;
     texture: string;
     physics: string;
+    empty_motion: string;
     position?: [number, number];
     scaler?: [number, number];
     size: [number, number];
@@ -55,6 +56,7 @@ class App {
     position: [number, number];
     scaler: [number, number];
     size: [number, number];
+    empty_animation: LIVE2DCUBISMFRAMEWORK.Animation;
 
     constructor(config: Configurer) {
         this.position = config.position != null ? config.position : [0,0];
@@ -65,6 +67,7 @@ class App {
             .add('moc', config.moc, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.BUFFER })
             .add('texture', config.texture)
             .add('physics', config.physics, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON })
+            .add('empty_motion', config.empty_motion, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON })
             .load((loader: PIXI.loaders.Loader, resources: PIXI.loaders.ResourceDictionary) => {
                 this.app = new PIXI.Application(this.size[0], this.size[1], { backgroundColor: 0x1099bb });
                 document.body.appendChild(this.app.view);
@@ -83,6 +86,23 @@ class App {
 
                 this.app.stage.addChild(this.model);
                 this.app.stage.addChild(this.model.masks);
+
+                this.empty_animation = LIVE2DCUBISMFRAMEWORK.Animation.fromMotion3Json(resources['empty_motion'].data);
+
+                this.empty_animation.evaluate = (time: any, weight: any, blend: any, target: any) => {
+                    let key = target.parameters.ids.indexOf("ParamAngleZ");
+                    target.parameters.values[key] = -30;
+                };
+                this.model.animator.getLayer('base').play(this.empty_animation);
+
+                this.app.ticker.add((deltaTime) => {
+                    this.model.update(deltaTime);
+
+                    // maskをupdateをする必要がありそう？
+                    // だがモデル読み込みでmaskを削っているのでおかしくなる
+                    // 一旦放置
+//                    this.model.masks.update(this.app.renderer);
+                });
 
                 this.processModel();
                 this.setStageTransform();
@@ -171,6 +191,15 @@ let app = new App({
     moc: "assets/yugure_neko_avatar/suzune_neko_chara_export.moc3",
     texture: "assets/yugure_neko_avatar/suzune_neko_chara_export.2048/texture_00.png",
     physics: "assets/yugure_neko_avatar/suzune_neko_chara_export.physics3.json",
+    empty_motion: "assets/empty_motion.json",
     position: [512, 720],
     scaler: [1.5, 1.5],
+});
+
+let socket = io('http://localhost:3000');
+socket.on('connect', () => {
+    socket.emit('to-server');
+});
+socket.on('from-server', (msg: any) => {
+    console.log(msg);
 });

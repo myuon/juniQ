@@ -11,6 +11,7 @@
   },
   "include": [
     "node_modules/@types/pixi.js/index.d.ts",
+    "node_modules/@types/socket.io/index.d.ts",
     "cubism-js/src/*.ts",
     "src/*.ts"
   ]

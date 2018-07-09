@@ -18,8 +18,9 @@ app.get('/dist/**', (req, res) => {
 io.on('connection', (socket) => {
   console.log('connect!');
 
-  socket.on('click!', (msg) => {
+  socket.on('to-server', (msg) => {
     console.log('get click! signal: ' + msg);
+    socket.emit('from-server', 'nyan');
   });
 });
 
