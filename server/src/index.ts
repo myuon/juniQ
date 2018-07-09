@@ -6,9 +6,26 @@ import * as express from 'express';
 let app = express();
 let server = new http.Server(app);
 let io = socketio(server);
+let socket_ = null;
 
 app.get('/', (req, res) => {
   res.send('/');
+});
+
+app.get('/params', (req, res) => {
+  if (socket_ !== null) {
+    socket_.emit('animate-by-params', req.query);
+  }
+
+  res.send(req.query);
+});
+
+app.post('/params', (req, res) => {
+  if (socket_ !== null) {
+    socket_.emit('animate-by-params', req.body);
+  }
+
+  res.send(req.body);
 });
 
 app.get('/dist/**', (req, res) => {
@@ -16,12 +33,8 @@ app.get('/dist/**', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  console.log('connect!');
-
-  socket.on('to-server', (msg) => {
-    console.log('get click! signal: ' + msg);
-    socket.emit('from-server', 'nyan');
-  });
+  socket_ = socket;
+  console.log('websocket connect!');
 });
 
 server.listen(3000, () => {

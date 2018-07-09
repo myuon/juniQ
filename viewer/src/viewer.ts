@@ -88,10 +88,7 @@ class App {
                 this.app.stage.addChild(this.model.masks);
 
                 this.empty_animation = LIVE2DCUBISMFRAMEWORK.Animation.fromMotion3Json(resources['empty_motion'].data);
-
                 this.empty_animation.evaluate = (time: any, weight: any, blend: any, target: any) => {
-                    let key = target.parameters.ids.indexOf("ParamAngleZ");
-                    target.parameters.values[key] = -30;
                 };
                 this.model.animator.getLayer('base').play(this.empty_animation);
 
@@ -184,6 +181,17 @@ class App {
 
         window.parent.postMessage(object, "*");
     };
+
+    animateByParams = (params: {[key:string]: string}) => {
+        if (this.empty_animation === undefined || this.empty_animation === null) return;
+
+        this.empty_animation.evaluate = (time: any, weight: any, blend: any, target: any) => {
+            Object.keys(params).forEach((key) => {
+                let parameter_name = target.parameters.ids.indexOf(key);
+                target.parameters.values[parameter_name] = parseInt(params[key], 10);
+            });
+        };
+    };
 }
 
 let app = new App({
@@ -197,9 +205,7 @@ let app = new App({
 });
 
 let socket = io('http://localhost:3000');
-socket.on('connect', () => {
-    socket.emit('to-server');
-});
-socket.on('from-server', (msg: any) => {
-    console.log(msg);
+socket.on('animate-by-params', (params: {[key: string]: string}) => {
+    console.log(params);
+    app.animateByParams(params);
 });
