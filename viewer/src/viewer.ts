@@ -1,5 +1,3 @@
-import * as PIXI from 'pixi.js';
-
 interface Configurer {
     moc: string;
     texture: string;
@@ -170,9 +168,9 @@ class App {
 
 let app = new App({
     size: [1024, 720],
-    moc: "hogehogheoge",
-    texture: "../assets/yugure_neko_avatar/suzune_neko_chara_export.2048/texture_00.png",
-    physics: "../assets/yugure_neko_avatar/suzune_neko_chara_export.physics3.json",
+    moc: "assets/yugure_neko_avatar/suzune_neko_chara_export.moc3",
+    texture: "assets/yugure_neko_avatar/suzune_neko_chara_export.2048/texture_00.png",
+    physics: "assets/yugure_neko_avatar/suzune_neko_chara_export.physics3.json",
     position: [512, 720],
     scaler: [1.5, 1.5],
 });
