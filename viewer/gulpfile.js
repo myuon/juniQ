@@ -31,5 +31,5 @@ gulp.task('default', gulp.series(gulp.parallel(
 
 
 gulp.task('watch', function() {
-  gulp.watch('./src/*.ts', gulp.task('default'));
+  gulp.watch(['./src/*.ts', './view/*.html', './tsconfig.json'], gulp.task('default'));
 });
