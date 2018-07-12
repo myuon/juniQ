@@ -7,6 +7,13 @@ let app = express();
 let server = new http.Server(app);
 let io = socketio(server);
 let socket_ = null;
+let peerServer = require('peer').ExpressPeerServer(server, { debug: true });
+
+app.use('/peerjs', peerServer);
+peerServer.on('connection', (id) => {
+  console.log(id);
+  console.log("connect!");
+})
 
 app.get('/', (req, res) => {
   res.send('/');
@@ -26,10 +33,6 @@ app.post('/params', (req, res) => {
   }
 
   res.send(req.body);
-});
-
-app.get('/dist/**', (req, res) => {
-  res.sendFile(path.resolve('.' + req.path));
 });
 
 io.on('connection', (socket) => {

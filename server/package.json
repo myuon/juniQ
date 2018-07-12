@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "./node_modules/typescript/bin/tsc",
     "watch": "tsc -w"
   },
   "keywords": [],
@@ -15,6 +15,7 @@
     "@types/node": "^10.5.2",
     "@types/socket.io": "^1.4.36",
     "express": "^4.16.3",
+    "peer": "^0.2.8",
     "socket.io": "^2.1.1",
     "typescript": "^2.9.2"
   }
