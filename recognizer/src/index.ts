@@ -10,9 +10,9 @@ getUserMedia({video: true, audio: false}, (stream: any) => {
     console.log(stream);
     video.src = URL.createObjectURL(stream);
     
-    let socket = io('http://192.168.33.10:3000');
+    let socket = io('http://localhost:3000');
     socket.on('connect', () => {
-        let peer = new Peer(socket.ids, { host: '192.168.33.10', port: 3000, path: '/peerjs' });
+        let peer = new Peer(socket.ids, { host: 'localhost', port: 3000, path: '/peerjs' });
     });
 }, (err: any) => {
     console.log("*** Error ***");

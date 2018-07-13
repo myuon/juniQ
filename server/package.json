@@ -18,5 +18,8 @@
     "peer": "^0.2.8",
     "socket.io": "^2.1.1",
     "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "face-recognition": "^0.9.3"
   }
 }
