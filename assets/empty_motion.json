@@ -1,0 +1,13 @@
+{
+	"Version": 3,
+	"Meta": {
+		"Duration": 1.000,
+		"Fps": 30.0,
+		"Loop": false,
+		"CurveCount": 0,
+		"TotalSegmentCount": 0,
+		"TotalPointCount": 0
+	},
+	"Curves": [
+	]
+}

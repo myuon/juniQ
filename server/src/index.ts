@@ -10,13 +10,6 @@ let app = express();
 let server = new http.Server(app);
 let io = socketio(server);
 let socket_ = null;
-let peerServer = require('peer').ExpressPeerServer(server, { debug: true });
-
-app.use('/peerjs', peerServer);
-peerServer.on('connection', (id) => {
-  console.log(id);
-  console.log("connect!");
-});
 
 app.use('/viewer', express.static(path.resolve(__dirname, '../../viewer/dist/')));
 app.use('/node_modules', express.static(path.resolve(__dirname, '../../viewer/node_modules/')));
