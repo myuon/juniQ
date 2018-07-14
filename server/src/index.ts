@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as http from 'http';
 import * as socketio from 'socket.io';
 import * as express from 'express';
@@ -15,11 +16,10 @@ app.use('/peerjs', peerServer);
 peerServer.on('connection', (id) => {
   console.log(id);
   console.log("connect!");
-})
-
-app.get('/', (req, res) => {
-  res.send('/');
 });
+
+app.use('/viewer', express.static(path.resolve(__dirname, '../../viewer/dist/')));
+app.use('/node_modules', express.static(path.resolve(__dirname, '../../viewer/node_modules/')));
 
 app.get('/params', (req, res) => {
   if (socket_ !== null) {

@@ -64,10 +64,10 @@ class App {
         this.size = config.size;
 
         PIXI.loader
-            .add('moc', config.moc, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.BUFFER })
-            .add('texture', config.texture)
-            .add('physics', config.physics, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON })
-            .add('empty_motion', config.empty_motion, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON })
+            .add('moc', config.moc, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.BUFFER, crossOrigin: true })
+            .add('texture', config.texture, { crossOrigin: true })
+            .add('physics', config.physics, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON, crossOrigin: true })
+            .add('empty_motion', config.empty_motion, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON, crossOrigin: true })
             .load((loader: PIXI.loaders.Loader, resources: PIXI.loaders.ResourceDictionary) => {
                 this.app = new PIXI.Application(this.size[0], this.size[1], { backgroundColor: 0x1099bb });
                 document.body.appendChild(this.app.view);

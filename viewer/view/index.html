@@ -11,7 +11,6 @@
         elem.style.height = `${event.data.size[1]}px`;
 
         for (let parameter of event.data.parameters) {
-          console.log(parameter);
           let div = document.getElementById('parameter-controls');
           div.innerHTML += (
             `<div class="pure-g" style="padding: 10px;" id="${parameter.id}">
@@ -39,5 +38,10 @@
       パラメータ
     </div>
     <iframe id="viewer" src="viewer.html" scrolling="no" frameborder="0"></iframe>
+    <video id="video" width="640" height="480" muted autoplay></video>
+    <canvas id="video-canvas" width="320" height="240"></canvas>
+    <canvas id="parts-canvas" width="320" height="240"></canvas>
+    <script src="../node_modules/socket.io-client/dist/socket.io.slim.js"></script>
+    <script src="js/index.js"></script>
   </body>
 </html>
