@@ -1,4 +1,3 @@
-import * as path from 'path';
 import * as http from 'http';
 import * as socketio from 'socket.io';
 import * as express from 'express';
@@ -73,18 +72,21 @@ io.on('connection', (socket) => {
   socket_ = socket;
   console.log('websocket connect!');
 
+  const predictor = fr.FaceLandmark68Predictor();
+  const detectorOpenCV = new cv.CascadeClassifier(cv.HAAR_FRONTALFACE_DEFAULT);
+
   socket.on('img', (base64: HexBase64BinaryEncoding) => {
-    let output = base64.replace(/^data:image\/(png|jpeg);base64,/, "");
-    let buffer = Buffer.from(output, 'base64');
-    let cvImg = fr.CvImage(cv.imdecode(buffer));
-    let img = fr.cvImageToImageRGB(cvImg);
+    const output = base64.replace(/^data:image\/(png|jpeg);base64,/, "");
+    const buffer = Buffer.from(output, 'base64');
+    const cvImg = fr.CvImage(cv.imdecode(buffer));
+    const img = fr.cvImageToImageRGB(cvImg);
 
-    const detector = new fr.FrontalFaceDetector();
-    const predictor = fr.FaceLandmark68Predictor();
-    const faceRects = detector.detect(img);
+    let imageGray = cv.imdecode(buffer).bgrToGray();
+    let detect = detectorOpenCV.detectMultiScale(imageGray);
 
-    if (faceRects.length > 0) {
-      const shapes = predictor.predict(img, faceRects[0]);
+    if (detect.objects.length > 0) {
+      let rect_obj = detect.objects[0];
+      const shapes = predictor.predict(img, new fr.Rect(rect_obj.x, rect_obj.y, rect_obj.x + rect_obj.width, rect_obj.y + rect_obj.height));
       socket.emit('parts', createFacialParts(shapes.getParts().map(p => { return { x: p.x, y: p.y }; })));
     }
   });

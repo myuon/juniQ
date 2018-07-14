@@ -50,7 +50,7 @@ getUserMedia({video: true, audio: false}, (stream: any) => {
 	  setInterval(() => {
 		context.drawImage(video, 0, 0, 320, 240);
 		socket.emit('img', canvas.toDataURL('image/jpeg', 0.6));
-	  }, 1000);
+	  }, 100);
 	});
   });
 }, (err: any) => {
