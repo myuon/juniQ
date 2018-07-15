@@ -2,3 +2,5 @@ node_modules/
 assets/*
 !assets/empty_motion.json
 dist/
+server/juniq-env/
+.vscode/

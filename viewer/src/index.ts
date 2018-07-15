@@ -1,5 +1,17 @@
 //import { FacialParts } from '../../server/src/index';
 
+export interface FacialParts {
+  chin: [number,number][],
+  left_eye: [number,number][],
+  left_eyebrow: [number,number][],
+  nose_bridge: [number,number][],
+  nose_tip: [number,number][],
+  right_eye: [number,number][],
+  right_eyebrow: [number,number][],
+  top_lip: [number,number][],
+  bottom_lip: [number,number][],
+};
+
 let getUserMedia = (
   navigator.getUserMedia ||
   (navigator as any).webkitGetUserMedia ||
@@ -13,33 +25,31 @@ getUserMedia({video: true, audio: false}, (stream: any) => {
   
   let socket = io('http://localhost:3000');
 
-  socket.on('parts', (parts: any) => {
+  socket.on('parts', (parts: FacialParts) => {
     let canvas = document.getElementById('parts-canvas') as HTMLCanvasElement;
     let context = canvas.getContext('2d');
 
     context.clearRect(0,0,640,480);
 
-    const connectLines = (arr: {x: number, y:number}[]) => {
+    const connectLines = (arr: [number,number][]) => {
       context.beginPath();
-      context.moveTo(arr[0].x, arr[0].y);
+      context.moveTo(arr[0][0], arr[0][1]);
         for (let i = 1; i < arr.length; i ++) {
-      context.lineTo(arr[i].x, arr[i].y);
-      context.moveTo(arr[i].x, arr[i].y);
+      context.lineTo(arr[i][0], arr[i][1]);
+      context.moveTo(arr[i][0], arr[i][1]);
       }
       context.stroke();
     };
 
-    connectLines(parts.face);
-    connectLines(parts.eye_left);
-    connectLines(parts.eye_right);
-    connectLines(parts.eyeblow_left);
-    connectLines(parts.eyeblow_right);
-    connectLines(parts.eye_left);
-    connectLines(parts.eye_right);
+    connectLines(parts.chin);
+    connectLines(parts.left_eye);
+    connectLines(parts.right_eye);
+    connectLines(parts.left_eyebrow);
+    connectLines(parts.right_eyebrow);
     connectLines(parts.nose_bridge);
-    connectLines(parts.nasal_cavity);
-    connectLines(parts.mouth_inner);
-    connectLines(parts.mouth_outer);
+    connectLines(parts.nose_tip);
+    connectLines(parts.top_lip);
+    connectLines(parts.bottom_lip);
   });
 
   socket.on('connect', () => {
