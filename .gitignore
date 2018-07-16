@@ -4,3 +4,4 @@ assets/*
 dist/
 server/juniq-env/
 .vscode/
+server/data/*.dat
