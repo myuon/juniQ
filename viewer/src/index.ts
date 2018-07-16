@@ -1,5 +1,3 @@
-let socket = io('http://localhost:3000');
-
 const get_request = (url: string) => {
   var request = new XMLHttpRequest();
   request.open('GET', url);
@@ -58,8 +56,8 @@ export interface FacialParts {
   nose_tip: [number,number][],
   right_eye: [number,number][],
   right_eyebrow: [number,number][],
-  top_lip: [number,number][],
-  bottom_lip: [number,number][],
+  outer_lip: [number,number][],
+  inner_lip: [number,number][],
 };
 
 // face recognition
@@ -72,9 +70,10 @@ let getUserMedia = (
 let video = document.getElementById('video') as HTMLVideoElement;
 
 getUserMedia({video: true, audio: false}, (stream: any) => {
+  let socket = io('http://localhost:3000');
   video.src = URL.createObjectURL(stream);
   
-  socket.on('tracker', (json: { parts: FacialParts, angles: [number, number, number], nose: [number, number][] }) => {
+  socket.on('tracker', (json: { parts: FacialParts, reproject: any }) => {
     const parts = json.parts;
 
     let canvas = document.getElementById('parts-canvas') as HTMLCanvasElement;
@@ -92,6 +91,14 @@ getUserMedia({video: true, audio: false}, (stream: any) => {
       context.stroke();
     };
 
+    context.strokeStyle = 'rgb(255,0,0)';
+    for (let pair of json.reproject) {
+      context.beginPath();
+      context.moveTo(pair[0][0], pair[0][1]);
+      context.lineTo(pair[1][0], pair[1][1]);
+      context.stroke();
+    }
+
     context.strokeStyle = 'rgb(0,0,0)';
     connectLines(parts.chin);
     context.strokeStyle = 'rgb(255,0,0)';
@@ -107,9 +114,9 @@ getUserMedia({video: true, audio: false}, (stream: any) => {
     context.strokeStyle = 'rgb(0,0,255)';
     connectLines(parts.nose_tip);
     context.strokeStyle = 'rgb(0,255,255)';
-    connectLines(parts.top_lip);
+    connectLines(parts.outer_lip);
     context.strokeStyle = 'rgb(0,255,0)';
-    connectLines(parts.bottom_lip);
+    connectLines(parts.inner_lip);
 
     context.strokeStyle = 'rgb(255,0,0)';
     context.arc(parts.nose_tip[2][0], parts.nose_tip[2][1], 5, 0, 2 * Math.PI, false)
@@ -120,9 +127,9 @@ getUserMedia({video: true, audio: false}, (stream: any) => {
     context.stroke();
     context.arc(parts.right_eye[3][0], parts.right_eye[3][1], 5, 0, 2 * Math.PI, false)
     context.stroke();
-    context.arc(parts.top_lip[0][0], parts.top_lip[0][1], 5, 0, 2 * Math.PI, false)
+    context.arc(parts.outer_lip[0][0], parts.outer_lip[0][1], 5, 0, 2 * Math.PI, false)
     context.stroke();
-    context.arc(parts.top_lip[6][0], parts.top_lip[6][1], 5, 0, 2 * Math.PI, false)
+    context.arc(parts.outer_lip[6][0], parts.outer_lip[6][1], 5, 0, 2 * Math.PI, false)
     context.stroke();
   });
 

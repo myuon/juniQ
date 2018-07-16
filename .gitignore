@@ -5,3 +5,4 @@ dist/
 server/juniq-env/
 .vscode/
 server/data/*.dat
+__pycache__/
