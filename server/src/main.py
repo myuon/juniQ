@@ -50,6 +50,15 @@ def recieve_image(encoded):
     if result is not None:
         reproject_dst, euler_angle, parts_list = result
 
+        def eye_open_param(eye):
+            h1 = np.linalg.norm(np.subtract(eye[1], eye[5]))
+            h2 = np.linalg.norm(np.subtract(eye[2], eye[4]))
+            h = (h1 + h2) / 2
+
+            return (0 if h < 1.5 else \
+                    1 if h > 5.5 else \
+                    (h - 1.5) / 4.0)
+
         cache.put('ParamAngleX', euler_angle[0])
         cache.put('ParamAngleY', euler_angle[1])
         cache.put('ParamAngleZ', euler_angle[2])
@@ -58,6 +67,8 @@ def recieve_image(encoded):
             'ParamAngleX': cache.get('ParamAngleX'),
             'ParamAngleY': cache.get('ParamAngleY'),
             'ParamAngleZ': cache.get('ParamAngleZ'),
+            'ParamEyeLOpen': eye_open_param(parts_list['left_eye']),
+            'ParamEyeROpen': eye_open_param(parts_list['right_eye']),
         })
 
         sio.emit('tracker', {
