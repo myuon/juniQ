@@ -80,9 +80,9 @@ class App {
                     .addTexture(0, resources['texture'].texture)
                     .setPhysics3Json(resources['physics'].data)
                     .addAnimatorLayer("base", LIVE2DCUBISMFRAMEWORK.BuiltinAnimationBlenders.OVERRIDE, 1)
-                    .addAnimatorLayer("Motion", LIVE2DCUBISMFRAMEWORK.BuiltinAnimationBlenders.OVERRIDE, 1)
-                    .addAnimatorLayer("Drag", LIVE2DCUBISMFRAMEWORK.BuiltinAnimationBlenders.OVERRIDE, 1)
                     .build();
+
+                this.processModel();
 
                 this.app.stage.addChild(this.model);
                 this.app.stage.addChild(this.model.masks);
@@ -97,10 +97,8 @@ class App {
                     this.model.masks.update(this.app.renderer);
                 });
 
-                this.processModel();
                 this.setStageTransform();
                 this.onResize();
-
                 this.sendToParent();
             }
         );
@@ -179,9 +177,10 @@ class App {
         this.empty_animation.evaluate = (time: any, weight: any, blend: any, target: any) => {
             Object.keys(params).forEach((key) => {
                 let parameter_name = target.parameters.ids.indexOf(key);
-                target.parameters.values[parameter_name] = parseInt(params[key], 10);
+                target.parameters.values[parameter_name] = parseFloat(params[key]);
             });
         };
+        this.model.animator.getLayer('base').play(this.empty_animation);
     };
 }
 
