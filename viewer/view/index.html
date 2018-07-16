@@ -4,39 +4,9 @@
     <meta charset="UTF-8">
     <title>JuniQ</title>
     <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
-    <script>
-      /*
-      window.addEventListener('message', function(event) {
-        let elem = document.getElementById("viewer");
-        elem.style.width = `${event.data.size[0]}px`;
-        elem.style.height = `${event.data.size[1]}px`;
-
-        for (let parameter of event.data.parameters) {
-          let div = document.getElementById('parameter-controls');
-          div.innerHTML += (
-            `<div class="pure-g" style="padding: 10px;" id="${parameter.id}">
-              <div class="pure-u-1-3" style="text-align: right;">${parameter.id}</div>
-              <div class="pure-u-1-3" style="text-align: center;"><input type="range" min="${parameter.min}" max="${parameter.max}" value="${parameter.default}" step="0.01" class="pure-u-2-5 value-range" id="${parameter.id}" /></div>
-              <div class="pure-u-1-3"><input type="text" value="${parameter.default}" class="pure-u-1-5 value-entry" /></div>
-            </div>`
-          );
-        }
-
-        // innerHTMLするとevent listenerが消えるので
-        // ここでまとめて登録する
-        for (let parameter of event.data.parameters) {
-          let control = document.getElementById(parameter.id);
-          control.getElementsByClassName('value-range')[0].addEventListener('change', (event) => {
-            let new_value = event.target.value;
-            control.getElementsByClassName('value-entry')[0].value = new_value;
-          });
-        }
-      }, { once: true });
-      */
-    </script>
   </head>
   <body>
-    <div id="parameter-controls" style="float: left; width: 400px">
+    <div id="parameter-controls" style="float: left; width: 400px; height: 100vh; overflow-y: scroll">
       パラメータ
     </div>
     <iframe id="viewer" src="viewer.html" scrolling="no" frameborder="0"></iframe>
