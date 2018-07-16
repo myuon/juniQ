@@ -50,7 +50,7 @@ line_pairs = [
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(str(face_landmark_path))
 
-def get_head_pose(shape):
+def decompose(shape):
   image_pts = np.float32([
     shape[17], shape[21], shape[22], shape[26], shape[36],
     shape[39], shape[42], shape[45], shape[31], shape[35],
@@ -63,9 +63,13 @@ def get_head_pose(shape):
 
   rotation_mat, _ = cv2.Rodrigues(rotation_vec)
   pose_mat = cv2.hconcat((rotation_mat, translation_vec))
-  _, _, _, _, _, _, euler_angle = cv2.decomposeProjectionMatrix(pose_mat)
 
-  return reproject_dst, np.squeeze(euler_angle)
+  return reproject_dst, pose_mat, rotation_mat
+
+def get_euler_angle(pose_mat):
+  _, _, _, _, _, _, euler_angle = cv2.decomposeProjectionMatrix(pose_mat)
+  
+  return np.squeeze(euler_angle)
 
 def create_parts_list(shape):
   return {
@@ -80,12 +84,33 @@ def create_parts_list(shape):
     'inner_lip': shape[60:68].tolist(),
   }
 
+def eye_open_param(eye):
+  h1 = np.linalg.norm(np.subtract(eye[1], eye[5]))
+  h2 = np.linalg.norm(np.subtract(eye[2], eye[4]))
+  h = (h1 + h2) / 2
+
+  return max([min([(h - 1.0) / 6, 1.0]), 0.0])
+
+  """
+  return (0 if h < 1.5 else \
+          1 if h > 5.5 else \
+          (h - 1.5) / 4.0)
+  """
+
 def predict(frame):
   face_rects = detector(frame, 0)
 
   if len(face_rects) > 0:
     shape = predictor(frame, face_rects[0])
     shape = face_utils.shape_to_np(shape)
-    reproject_dst, euler_angle = get_head_pose(shape)
+    reproject_dst, pose_mat, rotation_mat = decompose(shape)
+    original_parts_list = create_parts_list(np.array([np.dot(rotation_mat, np.array([p[0], p[1], 0])) for p in shape]))
+    euler_angle = get_euler_angle(pose_mat)
 
-    return list(map(lambda pair: [reproject_dst[pair[0]], reproject_dst[pair[1]]], line_pairs)), euler_angle, create_parts_list(shape)
+    return {
+      'reproject_dst': list(map(lambda pair: [reproject_dst[pair[0]], reproject_dst[pair[1]]], line_pairs)),
+      'head_pose': euler_angle,
+      'right_eye': eye_open_param(original_parts_list['right_eye']),
+      'left_eye': eye_open_param(original_parts_list['left_eye']),
+      'parts_list': create_parts_list(shape),
+    }

@@ -14,13 +14,12 @@ CORS(app)
 sio = SocketIO(app)
 
 class CorrectionCache():
-    def __init__(self, threshold = 1.0):
-        self.threshold = threshold
+    def __init__(self):
         self.stored = {}
     
     def put(self, key: str, value):
         if key in self.stored:
-            if abs(value - self.stored[key]) <= self.threshold:
+            if abs(value - self.stored[key]) <= 0.7 or abs(value - self.stored[key]) >= 20:
                 return
             else:
                 self.stored[key] = value
@@ -30,7 +29,7 @@ class CorrectionCache():
     def get(self, key: str):
         return self.stored[key]
 
-cache = CorrectionCache(threshold = 1.5)
+cache = CorrectionCache()
 
 @app.route('/')
 def index():
@@ -48,32 +47,21 @@ def recieve_image(encoded):
     result = recognizer.predict(gray)
 
     if result is not None:
-        reproject_dst, euler_angle, parts_list = result
-
-        def eye_open_param(eye):
-            h1 = np.linalg.norm(np.subtract(eye[1], eye[5]))
-            h2 = np.linalg.norm(np.subtract(eye[2], eye[4]))
-            h = (h1 + h2) / 2
-
-            return (0 if h < 1.5 else \
-                    1 if h > 5.5 else \
-                    (h - 1.5) / 4.0)
-
-        cache.put('ParamAngleX', euler_angle[0])
-        cache.put('ParamAngleY', euler_angle[1])
-        cache.put('ParamAngleZ', euler_angle[2])
+        cache.put('ParamAngleX', result['head_pose'][0])
+        cache.put('ParamAngleY', result['head_pose'][1])
+        cache.put('ParamAngleZ', result['head_pose'][2])
 
         request_animation({
             'ParamAngleX': cache.get('ParamAngleX'),
             'ParamAngleY': cache.get('ParamAngleY'),
             'ParamAngleZ': cache.get('ParamAngleZ'),
-            'ParamEyeLOpen': eye_open_param(parts_list['left_eye']),
-            'ParamEyeROpen': eye_open_param(parts_list['right_eye']),
+            'ParamEyeLOpen': result['left_eye'],
+            'ParamEyeROpen': result['right_eye'],
         })
 
         sio.emit('tracker', {
-            'parts': parts_list,
-            'reproject': reproject_dst,
+            'parts': result['parts_list'],
+            'reproject': result['reproject_dst'],
         }, json=True)
 
 @app.route('/params')
