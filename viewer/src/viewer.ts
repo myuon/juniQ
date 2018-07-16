@@ -94,11 +94,7 @@ class App {
 
                 this.app.ticker.add((deltaTime) => {
                     this.model.update(deltaTime);
-
-                    // maskをupdateをする必要がありそう？
-                    // だがモデル読み込みでmaskを削っているのでおかしくなる
-                    // 一旦放置
-//                    this.model.masks.update(this.app.renderer);
+                    this.model.masks.update(this.app.renderer);
                 });
 
                 this.processModel();
@@ -140,11 +136,6 @@ class App {
         this.model.removeChildren();
         for (let [mesh_name, _] of orders) {
             let mesh = this.model.getModelMeshById(mesh_name);
-
-            // 余計なmaskを削り取る
-            // 正気か？
-            mesh.mask = null;
-
             this.model.addChild(mesh);
         }
     };
