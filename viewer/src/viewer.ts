@@ -177,7 +177,7 @@ class App {
         this.empty_animation.evaluate = (time: any, weight: any, blend: any, target: any) => {
             Object.keys(params).forEach((key) => {
                 let parameter_name = target.parameters.ids.indexOf(key);
-                target.parameters.values[parameter_name] = parseFloat(params[key]);
+                target.parameters.values[parameter_name] = blend(target.parameters.values[parameter_name], parseFloat(params[key]), 0, weight);
             });
         };
         this.model.animator.getLayer('base').play(this.empty_animation);

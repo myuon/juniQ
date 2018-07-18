@@ -15,20 +15,20 @@ cam_matrix = np.array(K).reshape(3, 3).astype(np.float32)
 dist_coeffs = np.array(D).reshape(5, 1).astype(np.float32)
 
 object_pts = np.float32([
-  [6.825897, 6.760612, 4.402142],
-  [1.330353, 7.122144, 6.903745],
-  [-1.330353, 7.122144, 6.903745],
-  [-6.825897, 6.760612, 4.402142],
-  [5.311432, 5.485328, 3.987654],
-  [1.789930, 5.393625, 4.413414],
-  [-1.789930, 5.393625, 4.413414],
-  [-5.311432, 5.485328, 3.987654],
-  [2.005628, 1.409845, 6.165652],
-  [-2.005628, 1.409845, 6.165652],
-  [2.774015, -2.080775, 5.048531],
-  [-2.774015, -2.080775, 5.048531],
-  [0.000000, -3.116408, 6.097667],
-  [0.000000, -7.415691, 4.070434]
+  [6.825897, 6.760612, 4.402142], # 17
+  [1.330353, 7.122144, 6.903745], # 21
+  [-1.330353, 7.122144, 6.903745], # 22
+  [-6.825897, 6.760612, 4.402142], # 26
+  [5.311432, 5.485328, 3.987654], # 36
+  [1.789930, 5.393625, 4.413414], # 39
+  [-1.789930, 5.393625, 4.413414], # 42
+  [-5.311432, 5.485328, 3.987654], # 45
+  [2.005628, 1.409845, 6.165652], # 31
+  [-2.005628, 1.409845, 6.165652], # 35
+  [2.774015, -2.080775, 5.048531], # 48
+  [-2.774015, -2.080775, 5.048531], # 54
+  [0.000000, -3.116408, 6.097667], # 57
+  [0.000000, -7.415691, 4.070434] # 8
   ])
 
 reproject_src = np.float32([
@@ -52,24 +52,39 @@ predictor = dlib.shape_predictor(str(face_landmark_path))
 
 def decompose(shape):
   image_pts = np.float32([
-    shape[17], shape[21], shape[22], shape[26], shape[36],
-    shape[39], shape[42], shape[45], shape[31], shape[35],
-    shape[48], shape[54], shape[57], shape[8]
+    shape[17],
+    shape[21],
+    shape[22],
+    shape[26],
+    shape[36],
+    shape[39],
+    shape[42],
+    shape[45],
+    shape[31],
+    shape[35],
+    shape[48],
+    shape[54],
+    shape[57],
+    shape[8],
   ])
 
   _, rotation_vec, translation_vec = cv2.solvePnP(object_pts, image_pts, cam_matrix, dist_coeffs)
   reproject_dst, _ = cv2.projectPoints(reproject_src, rotation_vec, translation_vec, cam_matrix, dist_coeffs)
   reproject_dst = reproject_dst.reshape(8,2).tolist()
-
   rotation_mat, _ = cv2.Rodrigues(rotation_vec)
-  pose_mat = cv2.hconcat((rotation_mat, translation_vec))
 
-  return reproject_dst, pose_mat, rotation_mat
+  return reproject_dst, rotation_mat, rotation_vec, translation_vec
 
-def get_euler_angle(pose_mat):
-  _, _, _, _, _, _, euler_angle = cv2.decomposeProjectionMatrix(pose_mat)
-  
-  return np.squeeze(euler_angle)
+def get_head_pose_angles(rotation_mat, rotation_vec, translation_vec):
+  new_rotation_mat = -np.matrix(rotation_mat).T * np.matrix(translation_vec)
+
+  rotation_vec = np.array([
+    new_rotation_mat[0],
+    new_rotation_mat[1],
+    rotation_vec[2] * 180 / np.pi,
+  ])
+
+  return rotation_vec.squeeze().tolist()
 
 def create_parts_list(shape):
   return {
@@ -89,13 +104,11 @@ def eye_open_param(eye):
   h2 = np.linalg.norm(np.subtract(eye[2], eye[4]))
   h = (h1 + h2) / 2
 
-  return max([min([(h - 1.0) / 6, 1.0]), 0.0])
-
-  """
-  return (0 if h < 1.5 else \
-          1 if h > 5.5 else \
-          (h - 1.5) / 4.0)
-  """
+  return (
+    0.0 if h < 1.5 else
+    1.0 if h > 4.0 else
+    (h - 1.5) / 2.5
+  )
 
 def predict(frame):
   face_rects = detector(frame, 0)
@@ -103,13 +116,12 @@ def predict(frame):
   if len(face_rects) > 0:
     shape = predictor(frame, face_rects[0])
     shape = face_utils.shape_to_np(shape)
-    reproject_dst, pose_mat, rotation_mat = decompose(shape)
+    reproject_dst, rotation_mat, rotation_vec, translation_vec = decompose(shape)
     original_parts_list = create_parts_list(np.array([np.dot(rotation_mat, np.array([p[0], p[1], 0])) for p in shape]))
-    euler_angle = get_euler_angle(pose_mat)
 
     return {
       'reproject_dst': list(map(lambda pair: [reproject_dst[pair[0]], reproject_dst[pair[1]]], line_pairs)),
-      'head_pose': euler_angle,
+      'head_pose': get_head_pose_angles(rotation_mat, rotation_vec, translation_vec),
       'right_eye': eye_open_param(original_parts_list['right_eye']),
       'left_eye': eye_open_param(original_parts_list['left_eye']),
       'parts_list': create_parts_list(shape),

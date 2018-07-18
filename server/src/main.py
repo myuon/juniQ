@@ -14,22 +14,24 @@ CORS(app)
 sio = SocketIO(app)
 
 class CorrectionCache():
-    def __init__(self):
+    def __init__(self, replica=3):
         self.stored = {}
+        self.replica = replica
     
     def put(self, key: str, value):
         if key in self.stored:
-            if abs(value - self.stored[key]) <= 0.7 or abs(value - self.stored[key]) >= 20:
-                return
-            else:
-                self.stored[key] = value
+            self.stored[key].append(value)
+
+            if len(self.stored[key]) >= self.replica:
+                self.stored[key].pop(0)
         else:
-            self.stored[key] = value
+            self.stored[key] = [value]
     
     def get(self, key: str):
-        return self.stored[key]
+        values = self.stored[key]
+        return sum(values) / len(values)
 
-cache = CorrectionCache()
+cache = CorrectionCache(replica=3)
 
 @app.route('/')
 def index():
@@ -47,16 +49,18 @@ def recieve_image(encoded):
     result = recognizer.predict(gray)
 
     if result is not None:
-        cache.put('ParamAngleX', result['head_pose'][0])
-        cache.put('ParamAngleY', result['head_pose'][1])
-        cache.put('ParamAngleZ', result['head_pose'][2])
+        cache.put('ParamAngleX', -result['head_pose'][0] / 4)
+        cache.put('ParamAngleY', -result['head_pose'][1])
+        cache.put('ParamAngleZ', -result['head_pose'][2])
+        cache.put('ParamEyeLOpen', result['left_eye'])
+        cache.put('ParamEyeROpen', result['right_eye'])
 
         request_animation({
             'ParamAngleX': cache.get('ParamAngleX'),
             'ParamAngleY': cache.get('ParamAngleY'),
             'ParamAngleZ': cache.get('ParamAngleZ'),
-            'ParamEyeLOpen': result['left_eye'],
-            'ParamEyeROpen': result['right_eye'],
+            'ParamEyeLOpen': cache.get('ParamEyeLOpen'),
+            'ParamEyeROpen': cache.get('ParamEyeROpen'),
         })
 
         sio.emit('tracker', {
