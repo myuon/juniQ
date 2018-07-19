@@ -73,7 +73,7 @@ getUserMedia({video: true, audio: false}, (stream: any) => {
   let socket = io('http://localhost:3000');
   video.src = URL.createObjectURL(stream);
   
-  socket.on('tracker', (json: { parts: FacialParts, reproject: any }) => {
+  socket.on('tracker', (json: { parts: FacialParts, reproject: any, eye_center: any }) => {
     const parts = json.parts;
 
     let canvas = document.getElementById('parts-canvas') as HTMLCanvasElement;
@@ -119,18 +119,34 @@ getUserMedia({video: true, audio: false}, (stream: any) => {
     connectLines(parts.inner_lip);
 
     context.strokeStyle = 'rgb(255,0,0)';
+    context.beginPath();
     context.arc(parts.nose_tip[2][0], parts.nose_tip[2][1], 5, 0, 2 * Math.PI, false)
     context.stroke();
+    context.beginPath();
     context.arc(parts.chin[8][0], parts.chin[8][1], 5, 0, 2 * Math.PI, false)
     context.stroke();
+    context.beginPath();
     context.arc(parts.left_eye[0][0], parts.left_eye[0][1], 5, 0, 2 * Math.PI, false)
     context.stroke();
+    context.beginPath();
     context.arc(parts.right_eye[3][0], parts.right_eye[3][1], 5, 0, 2 * Math.PI, false)
     context.stroke();
+    context.beginPath();
     context.arc(parts.outer_lip[0][0], parts.outer_lip[0][1], 5, 0, 2 * Math.PI, false)
     context.stroke();
+    context.beginPath();
     context.arc(parts.outer_lip[6][0], parts.outer_lip[6][1], 5, 0, 2 * Math.PI, false)
     context.stroke();
+
+    if (json.eye_center[0] && json.eye_center[1]) {
+      context.strokeStyle = 'rgb(0,0,255)';
+      context.beginPath();
+      context.arc(json.eye_center[0][0], json.eye_center[0][1], 3, 0, 2 * Math.PI, false)
+      context.stroke();
+      context.beginPath();
+      context.arc(json.eye_center[1][0], json.eye_center[1][1], 3, 0, 2 * Math.PI, false)
+      context.stroke();
+    }
   });
 
   socket.on('connect', () => {

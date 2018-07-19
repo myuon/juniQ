@@ -123,7 +123,6 @@ class App {
         });
     }
 
-    // この辺の処理が必要なのはSDKのバグなのかそれとも仕様なのか…
     processModel = () => {
         let orders: [string, number][] = [];
         for (let k in this.model.drawables.ids) {
@@ -196,6 +195,5 @@ let app = new App({
 
 let socket = io('http://localhost:3000');
 socket.on('animate-by-params', (params: {[key: string]: string}) => {
-    console.log(params);
     app.animateByParams(params);
 });

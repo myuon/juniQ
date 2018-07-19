@@ -110,7 +110,70 @@ def eye_open_param(eye):
     (h - 1.5) / 2.5
   )
 
-def predict(frame):
+def get_center(gray_img):
+  moments = cv2.moments(gray_img, False)
+  try:
+    return int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00'])
+  except:
+    return None
+
+def detect_eye_center(img, shape):
+  left_eye = [
+    shape[36],
+    min(shape[37], shape[38], key=lambda x: x[1]),
+    max(shape[40], shape[41], key=lambda x: x[1]),
+    shape[39],
+  ]
+  right_eye = [
+    shape[42],
+    min(shape[43], shape[44], key=lambda x: x[1]),
+    max(shape[46], shape[47], key=lambda x: x[1]),
+    shape[45],
+  ]
+
+  def get_eye_center(eye):
+    origin = (eye[0][0], eye[1][1])
+    if abs(eye[2][1] - origin[1]) < 2:
+      return None
+
+    eye = img[origin[1]:eye[2][1], origin[0]:eye[-1][0]]
+    _, eye = cv2.threshold(eye, 30, 255, cv2.THRESH_BINARY_INV)
+
+    center = get_center(eye)
+    if center:
+      return int(center[0] + origin[0]), int(center[1] + origin[1])
+    
+    return center
+
+  def normalize_position(value, start, end):
+    size = abs(end - start)
+    return (value - (start + size / 2)) / (size / 2)
+
+  left_pos = get_eye_center(left_eye)
+  right_pos = get_eye_center(right_eye)
+
+  if left_pos is None:
+    left_normalized_pos = None
+  else:
+    left_normalized_pos = (
+      normalize_position(
+        left_pos[0],
+        min(shape[37][0], shape[41][0]),
+        max(shape[38][0], shape[40][0])
+      ),
+      normalize_position(
+        left_pos[1],
+        min(shape[37][1], shape[38][1]),
+        min(shape[40][1], shape[41][1])
+      )
+    )
+
+  return (
+    (left_pos, right_pos),
+    left_normalized_pos
+  )
+
+def predict(frame, original):
   face_rects = detector(frame, 0)
 
   if len(face_rects) > 0:
@@ -119,10 +182,13 @@ def predict(frame):
     reproject_dst, rotation_mat, rotation_vec, translation_vec = decompose(shape)
     original_parts_list = create_parts_list(np.array([np.dot(rotation_mat, np.array([p[0], p[1], 0])) for p in shape]))
 
+    center = detect_eye_center(frame, shape)
+
     return {
       'reproject_dst': list(map(lambda pair: [reproject_dst[pair[0]], reproject_dst[pair[1]]], line_pairs)),
       'head_pose': get_head_pose_angles(rotation_mat, rotation_vec, translation_vec),
       'right_eye': eye_open_param(original_parts_list['right_eye']),
       'left_eye': eye_open_param(original_parts_list['left_eye']),
       'parts_list': create_parts_list(shape),
+      'eye_center': center,
     }

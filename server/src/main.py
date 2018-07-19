@@ -20,6 +20,9 @@ class CorrectionCache():
     
     def put(self, key: str, value):
         if key in self.stored:
+            if abs(value) != 0 and abs(value - self.stored[key][0]) / abs(value) < 0.10:
+                return
+            
             self.stored[key].append(value)
 
             if len(self.stored[key]) >= self.replica:
@@ -46,7 +49,7 @@ def recieve_image(encoded):
     buffer = base64.b64decode(encoded.split(',')[1])
     img = cv2.imdecode(np.fromstring(buffer, np.uint8), cv2.IMREAD_COLOR)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    result = recognizer.predict(gray)
+    result = recognizer.predict(gray, img)
 
     if result is not None:
         cache.put('ParamAngleX', -result['head_pose'][0] / 4)
@@ -54,6 +57,10 @@ def recieve_image(encoded):
         cache.put('ParamAngleZ', -result['head_pose'][2])
         cache.put('ParamEyeLOpen', result['left_eye'])
         cache.put('ParamEyeROpen', result['right_eye'])
+        
+        if result['eye_center'][1] is not None:
+            cache.put('ParamEyeBallX', -result['eye_center'][1][0])
+            cache.put('ParamEyeBallY', -result['eye_center'][1][1])
 
         request_animation({
             'ParamAngleX': cache.get('ParamAngleX'),
@@ -61,11 +68,14 @@ def recieve_image(encoded):
             'ParamAngleZ': cache.get('ParamAngleZ'),
             'ParamEyeLOpen': cache.get('ParamEyeLOpen'),
             'ParamEyeROpen': cache.get('ParamEyeROpen'),
+            'ParamEyeBallX': cache.get('ParamEyeBallX'),
+            'ParamEyeBallY': cache.get('ParamEyeBallY'),
         })
 
         sio.emit('tracker', {
             'parts': result['parts_list'],
             'reproject': result['reproject_dst'],
+            'eye_center': result['eye_center'][0],
         }, json=True)
 
 @app.route('/params')
