@@ -13,28 +13,57 @@ app = Flask(__name__)
 CORS(app)
 sio = SocketIO(app)
 
-class CorrectionCache():
-    def __init__(self, replica=3):
-        self.stored = {}
-        self.replica = replica
-    
-    def put(self, key: str, value):
-        if key in self.stored:
-            if abs(value) != 0 and abs(value - self.stored[key][0]) / abs(value) < 0.10:
-                return
-            
-            self.stored[key].append(value)
+class KalmanCache():
+    def __init__(self, keys=[]):
+        self.filters = {}
+        self.prevs = {}
 
-            if len(self.stored[key]) >= self.replica:
-                self.stored[key].pop(0)
-        else:
-            self.stored[key] = [value]
-    
-    def get(self, key: str):
-        values = self.stored[key]
-        return sum(values) / len(values)
+        for key in keys:
+            self.create(key)
 
-cache = CorrectionCache(replica=3)
+    @staticmethod
+    def newKalmanFilter():
+        kalman = cv2.KalmanFilter(2,2)
+        kalman.measurementMatrix = np.array([
+            [1,1],
+            [0,1],
+        ], np.float32)
+        kalman.transitionMatrix = np.array([
+            [1,0.2],
+            [0,1],
+        ], np.float32)
+        kalman.processNoiseCov = np.array([
+            [1,0],
+            [0,1],
+        ], np.float32) * 0.1
+
+        return kalman
+
+    def create(self, key):
+        self.filters[key] = self.newKalmanFilter()
+        self.prevs[key] = 0.0
+
+    def correct(self, key, value):
+        self.filters[key].correct(np.array([
+            value,
+            value - self.prevs[key],
+        ], np.float32))
+
+        self.prevs[key] = value
+    
+    def predict(self, key):
+        return float(self.filters[key].predict()[0])
+
+cache = KalmanCache([
+    'ParamAngleX',
+    'ParamAngleY',
+    'ParamAngleZ',
+    'ParamEyeLOpen',
+    'ParamEyeROpen',
+    'ParamMouthOpenY',
+    'ParamEyeBallX',
+    'ParamEyeBallY',
+])
 
 @app.route('/')
 def index():
@@ -52,26 +81,26 @@ def recieve_image(encoded):
     result = recognizer.predict(gray, img)
 
     if result is not None:
-        cache.put('ParamAngleX', -result['head_pose'][0] / 4)
-        cache.put('ParamAngleY', -result['head_pose'][1])
-        cache.put('ParamAngleZ', -result['head_pose'][2])
-        cache.put('ParamEyeLOpen', result['left_eye'])
-        cache.put('ParamEyeROpen', result['right_eye'])
-        cache.put('ParamMouthOpenY', result['mouse'])
+        cache.correct('ParamAngleX', -result['head_pose'][0] / 4)
+        cache.correct('ParamAngleY', -result['head_pose'][1])
+        cache.correct('ParamAngleZ', -result['head_pose'][2])
+        cache.correct('ParamEyeLOpen', result['left_eye'])
+        cache.correct('ParamEyeROpen', result['right_eye'])
+        cache.correct('ParamMouthOpenY', result['mouse'])
         
         if result['eye_center'][1] is not None:
-            cache.put('ParamEyeBallX', -result['eye_center'][1][0])
-            cache.put('ParamEyeBallY', -result['eye_center'][1][1])
+            cache.correct('ParamEyeBallX', -result['eye_center'][1][0])
+            cache.correct('ParamEyeBallY', -result['eye_center'][1][1])
 
         request_animation({
-            'ParamAngleX': cache.get('ParamAngleX'),
-            'ParamAngleY': cache.get('ParamAngleY'),
-            'ParamAngleZ': cache.get('ParamAngleZ'),
-            'ParamEyeLOpen': cache.get('ParamEyeLOpen'),
-            'ParamEyeROpen': cache.get('ParamEyeROpen'),
-            'ParamEyeBallX': cache.get('ParamEyeBallX'),
-            'ParamEyeBallY': cache.get('ParamEyeBallY'),
-            'ParamMouthOpenY': cache.get('ParamMouthOpenY'),
+            'ParamAngleX': cache.predict('ParamAngleX'),
+            'ParamAngleY': cache.predict('ParamAngleY'),
+            'ParamAngleZ': cache.predict('ParamAngleZ'),
+            'ParamEyeLOpen': cache.predict('ParamEyeLOpen'),
+            'ParamEyeROpen': cache.predict('ParamEyeROpen'),
+            'ParamEyeBallX': cache.predict('ParamEyeBallX'),
+            'ParamEyeBallY': cache.predict('ParamEyeBallY'),
+            'ParamMouthOpenY': cache.predict('ParamMouthOpenY'),
         })
 
         sio.emit('tracker', {
