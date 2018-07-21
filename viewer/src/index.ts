@@ -1,15 +1,6 @@
 const get_request = (url: string) => {
   var request = new XMLHttpRequest();
   request.open('GET', url);
-  request.onreadystatechange = function () {
-      if (request.readyState != 4) {
-          // リクエスト中
-      } else if (request.status != 200) {
-          // 失敗
-      } else {
-          // 取得成功
-      }
-  };
   request.send(null);  
 }
 
@@ -64,14 +55,33 @@ export interface FacialParts {
 let getUserMedia = (
   navigator.getUserMedia ||
   (navigator as any).webkitGetUserMedia ||
-  (navigator as any).mozGetUserMedia
+  (navigator as any).mozGetUserMedia ||
+  navigator.mediaDevices.getUserMedia
 ).bind(navigator);
+
+let audioContext = new ((
+  (window as any).AudioContext ||
+  (window as any).webkitAudioContext
+).bind(window))();
+let audioAnalyzer = audioContext.createAnalyser();
 
 let video = document.getElementById('video') as HTMLVideoElement;
 
-getUserMedia({video: true, audio: false}, (stream: any) => {
+getUserMedia({video: true, audio: false}, (stream: MediaStream) => {
   let socket = io('http://localhost:3000');
   video.src = URL.createObjectURL(stream);
+
+  /*
+  let audioStream = audioContext.createMediaStreamSource(stream);
+  let processor = audioContext.createScriptProcessor();
+  processor.volume = 0;
+  processor.onaudioProcess = (event: AudioProcessingEvent) => {
+    this.volume = event.inputBuffer.getChannelData(0)
+    console.log(this.volume);
+  };
+  processor.connect(audioContext.destination);
+  audioStream.connect(processor);
+  */
   
   socket.on('tracker', (json: { parts: FacialParts, reproject: any, eye_center: any }) => {
     const parts = json.parts;

@@ -57,6 +57,7 @@ def recieve_image(encoded):
         cache.put('ParamAngleZ', -result['head_pose'][2])
         cache.put('ParamEyeLOpen', result['left_eye'])
         cache.put('ParamEyeROpen', result['right_eye'])
+        cache.put('ParamMouthOpenY', result['mouse'])
         
         if result['eye_center'][1] is not None:
             cache.put('ParamEyeBallX', -result['eye_center'][1][0])
@@ -70,6 +71,7 @@ def recieve_image(encoded):
             'ParamEyeROpen': cache.get('ParamEyeROpen'),
             'ParamEyeBallX': cache.get('ParamEyeBallX'),
             'ParamEyeBallY': cache.get('ParamEyeBallY'),
+            'ParamMouthOpenY': cache.get('ParamMouthOpenY'),
         })
 
         sio.emit('tracker', {

@@ -173,6 +173,10 @@ def detect_eye_center(img, shape):
     left_normalized_pos
   )
 
+def mouse_open_param(shape):
+  height = np.linalg.norm(shape[66] - shape[62])
+  return (height - 3) / 7
+
 def predict(frame, original):
   face_rects = detector(frame, 0)
 
@@ -191,4 +195,5 @@ def predict(frame, original):
       'left_eye': eye_open_param(original_parts_list['left_eye']),
       'parts_list': create_parts_list(shape),
       'eye_center': center,
+      'mouse': mouse_open_param(shape),
     }
