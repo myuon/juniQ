@@ -177,8 +177,15 @@ def mouse_open_param(shape):
   height = np.linalg.norm(shape[66] - shape[62])
   return (height - 3) / 7
 
+should_detect = 0
+face_rects = []
+
 def predict(frame, original):
-  face_rects = detector(frame, 0)
+  global should_detect, face_rects
+
+  if should_detect == 0:
+    face_rects = detector(frame, 0)
+  should_detect = (should_detect + 1) % 2
 
   if len(face_rects) > 0:
     shape = predictor(frame, face_rects[0])

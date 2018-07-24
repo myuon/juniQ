@@ -81,7 +81,7 @@ def recieve_image(encoded):
     result = recognizer.predict(gray, img)
 
     if result is not None:
-        cache.correct('ParamAngleX', -result['head_pose'][0] / 4)
+        cache.correct('ParamAngleX', -result['head_pose'][0] / 2)
         cache.correct('ParamAngleY', -result['head_pose'][1])
         cache.correct('ParamAngleZ', -result['head_pose'][2])
         cache.correct('ParamEyeLOpen', result['left_eye'])
