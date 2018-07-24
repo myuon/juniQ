@@ -17,24 +17,28 @@ class KalmanCache():
     def __init__(self, keys=[]):
         self.filters = {}
         self.prevs = {}
+        self.vels = {}
 
         for key in keys:
             self.create(key)
 
     @staticmethod
     def newKalmanFilter():
-        kalman = cv2.KalmanFilter(2,2)
+        kalman = cv2.KalmanFilter(3,3)
         kalman.measurementMatrix = np.array([
-            [1,1],
-            [0,1],
+            [1,1,1],
+            [0,0,0],
+            [0,0,0]
         ], np.float32)
         kalman.transitionMatrix = np.array([
-            [1,0.2],
-            [0,1],
+            [1,0.2,0],
+            [0,1,0.5],
+            [0,0,1]
         ], np.float32)
         kalman.processNoiseCov = np.array([
-            [1,0],
-            [0,1],
+            [1,0,0],
+            [0,1,0],
+            [0,0,1]
         ], np.float32) * 0.1
 
         return kalman
@@ -42,14 +46,18 @@ class KalmanCache():
     def create(self, key):
         self.filters[key] = self.newKalmanFilter()
         self.prevs[key] = 0.0
+        self.vels[key] = 0.0
 
     def correct(self, key, value):
+        vel = value - self.prevs[key]
         self.filters[key].correct(np.array([
             value,
-            value - self.prevs[key],
+            vel,
+            vel - self.vels[key]
         ], np.float32))
 
         self.prevs[key] = value
+        self.vels[key] = vel
     
     def predict(self, key):
         return float(self.filters[key].predict()[0])
