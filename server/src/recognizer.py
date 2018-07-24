@@ -185,7 +185,7 @@ def predict(frame, original):
 
   if should_detect == 0:
     face_rects = detector(frame, 0)
-  should_detect = (should_detect + 1) % 2
+  should_detect = (should_detect + 1) % 3
 
   if len(face_rects) > 0:
     shape = predictor(frame, face_rects[0])
