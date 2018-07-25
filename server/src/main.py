@@ -115,6 +115,7 @@ def recieve_image(encoded):
             'parts': result['parts_list'],
             'reproject': result['reproject_dst'],
             'eye_center': result['eye_center'][0],
+            'contour': result['contour'],
         }, json=True)
 
 @app.route('/params')

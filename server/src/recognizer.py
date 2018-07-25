@@ -177,6 +177,28 @@ def mouse_open_param(shape):
   height = np.linalg.norm(shape[66] - shape[62])
   return (height - 3) / 7
 
+def hand_predict(frame, face_rect):
+  hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV_FULL)
+  h = hsv[:,:,0]
+  s = hsv[:,:,1]
+
+  mask = np.zeros(h.shape, dtype=np.uint8)
+  mask[((25 < h) | (h < 55)) & ((55 < s) & (s < 85))] = 255
+
+  _, contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+  rects = [np.array(cv2.boundingRect(cv2.convexHull(contour))) for contour in contours]
+
+  rectR = max(filter(lambda r: r[0] < face_rect.left(), rects), key=lambda r: r[2] * r[3])
+  rectL = max(filter(lambda r: r[0] > face_rect.right(), rects), key=lambda r: r[2] * r[3])
+
+  def center(rect):
+    return (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
+
+  return {
+    'right_hand': center(rectR) if rectR[2] * rectR[3] >= 2000 else None,
+    'left_hand': center(rectL) if rectL[2] * rectL[3] >= 2000 else None,
+  }
+
 should_detect = 0
 face_rects = []
 
@@ -203,4 +225,5 @@ def predict(frame, original):
       'parts_list': create_parts_list(shape),
       'eye_center': center,
       'mouse': mouse_open_param(shape),
+      'contour': hand_predict(original, face_rects[0]),
     }

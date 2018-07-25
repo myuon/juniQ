@@ -83,7 +83,7 @@ getUserMedia({video: true, audio: false}, (stream: MediaStream) => {
   audioStream.connect(processor);
   */
   
-  socket.on('tracker', (json: { parts: FacialParts, reproject: any, eye_center: any }) => {
+  socket.on('tracker', (json: { parts: FacialParts, reproject: any, eye_center: any, contour: any }) => {
     const parts = json.parts;
 
     let canvas = document.getElementById('parts-canvas') as HTMLCanvasElement;
@@ -106,6 +106,23 @@ getUserMedia({video: true, audio: false}, (stream: MediaStream) => {
       context.beginPath();
       context.moveTo(pair[0][0], pair[0][1]);
       context.lineTo(pair[1][0], pair[1][1]);
+      context.stroke();
+    }
+
+    context.strokeStyle = 'rgb(0,0,255)';
+    let hands = json.contour;
+
+    if (hands['right_hand']) {
+      let rect = hands['right_hand'];
+      context.beginPath();
+      context.arc(rect[0], rect[1], 5, 0, 2 * Math.PI, false)
+      context.stroke();
+    }
+
+    if (hands['left_hand']) {
+      let rect = hands['left_hand'];
+      context.beginPath();
+      context.arc(rect[0], rect[1], 5, 0, 2 * Math.PI, false)
       context.stroke();
     }
 
