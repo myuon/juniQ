@@ -71,6 +71,7 @@ cache = KalmanCache([
     'ParamMouthOpenY',
     'ParamEyeBallX',
     'ParamEyeBallY',
+    'ParamBodyAngleZ',
 ])
 
 @app.route('/')
@@ -95,6 +96,7 @@ def recieve_image(encoded):
         cache.correct('ParamEyeLOpen', result['left_eye'])
         cache.correct('ParamEyeROpen', result['right_eye'])
         cache.correct('ParamMouthOpenY', result['mouse'])
+        cache.correct('ParamBodyAngleZ', -result['body_pose'] / 3)
         
         if result['eye_center'][1] is not None:
             cache.correct('ParamEyeBallX', -result['eye_center'][1][0])
@@ -109,6 +111,7 @@ def recieve_image(encoded):
             'ParamEyeBallX': cache.predict('ParamEyeBallX'),
             'ParamEyeBallY': cache.predict('ParamEyeBallY'),
             'ParamMouthOpenY': cache.predict('ParamMouthOpenY'),
+            'ParamBodyAngleZ': cache.predict('ParamBodyAngleZ'),
         })
 
         sio.emit('tracker', {

@@ -199,6 +199,11 @@ def hand_predict(frame, face_rect):
     'left_hand': center(rectL) if rectL[2] * rectL[3] >= 2000 else None,
   }
 
+def get_body_pose(rect):
+  # center_of_window = (160,120)
+  center_of_face = (rect.left() + rect.width() / 2, rect.top() + rect.height() / 2)
+  return 90 - (np.arctan2(240 - center_of_face[1], center_of_face[0] - 160)) * 180 / np.pi
+
 should_detect = 0
 face_rects = []
 
@@ -220,6 +225,7 @@ def predict(frame, original):
     return {
       'reproject_dst': list(map(lambda pair: [reproject_dst[pair[0]], reproject_dst[pair[1]]], line_pairs)),
       'head_pose': get_head_pose_angles(rotation_mat, rotation_vec, translation_vec),
+      'body_pose': get_body_pose(face_rects[0]),
       'right_eye': eye_open_param(original_parts_list['right_eye']),
       'left_eye': eye_open_param(original_parts_list['left_eye']),
       'parts_list': create_parts_list(shape),
