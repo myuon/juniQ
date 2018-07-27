@@ -39,6 +39,65 @@ window.addEventListener('message', (event: MessageEvent) => {
 
 // -------
 
+class AudioVolume {
+  processor: ScriptProcessorNode;
+  volume: number;
+  clipLevel: number;
+  averaging: number;
+  clipping: boolean;
+  lastClip: number;
+  clipLag: number;
+
+  constructor(audioContext: AudioContext, clipLevel = 0.98, averaging = 0.95, clipLag = 750) {
+    this.processor = audioContext.createScriptProcessor();
+    this.processor.onaudioprocess = this.volumeAudioProcess;
+    this.clipping = false;
+    this.lastClip = 0;
+    this.volume = 0;
+    this.clipLevel = clipLevel;
+    this.averaging = averaging;
+    this.clipLag = clipLag;
+
+    this.processor.connect(audioContext.destination);
+  }
+
+  volumeAudioProcess = (event: AudioProcessingEvent) => {
+    let buf = event.inputBuffer.getChannelData(0);
+    let sum = 0;
+    
+    buf.forEach((x) => {
+      if (Math.abs(x) >= this.clipLevel) {
+        this.clipping = true;
+        this.lastClip = window.performance.now();
+      }
+
+      sum += x * x;
+    });
+
+    let rms = Math.sqrt(sum / buf.length);
+
+    // smoothing
+    this.volume = Math.max(rms, this.volume * this.averaging / 2);
+  };
+
+  checkClipping = () => {
+    if (!this.clipping) return false;
+
+    if ((this.lastClip + this.clipLag) < window.performance.now()) {
+      this.clipping = false;
+    }
+
+    return this.clipping;
+  };
+
+  shutdown = () => {
+    this.processor.disconnect();
+    this.processor.onaudioprocess = null;
+  };
+}
+
+// -------
+
 export interface FacialParts {
   chin: [number,number][],
   left_eye: [number,number][],
@@ -59,30 +118,26 @@ let getUserMedia = (
   navigator.mediaDevices.getUserMedia
 ).bind(navigator);
 
-let audioContext = new ((
+let audioContext: AudioContext = new ((
   (window as any).AudioContext ||
   (window as any).webkitAudioContext
 ).bind(window))();
-let audioAnalyzer = audioContext.createAnalyser();
 
 let video = document.getElementById('video') as HTMLVideoElement;
 
-getUserMedia({video: true, audio: false}, (stream: MediaStream) => {
+getUserMedia({video: true, audio: true}, (stream: MediaStream) => {
   let socket = io('http://localhost:3000');
   video.src = URL.createObjectURL(stream);
 
-  /*
-  let audioStream = audioContext.createMediaStreamSource(stream);
-  let processor = audioContext.createScriptProcessor();
-  processor.volume = 0;
-  processor.onaudioProcess = (event: AudioProcessingEvent) => {
-    this.volume = event.inputBuffer.getChannelData(0)
-    console.log(this.volume);
-  };
-  processor.connect(audioContext.destination);
-  audioStream.connect(processor);
-  */
-  
+  let source = audioContext.createMediaStreamSource(stream);
+  let meter = new AudioVolume(audioContext);
+  source.connect(meter.processor);
+
+  // 口パクのfpsどれくらいにしたもんか…
+  setInterval(() => {
+    get_request(`http://localhost:3000/params?ParamMouthOpenY=${Math.min(meter.volume * 200, 1)}`);
+  }, 50);
+
   socket.on('tracker', (json: { parts: FacialParts, reproject: any, eye_center: any, contour: any }) => {
     const parts = json.parts;
 

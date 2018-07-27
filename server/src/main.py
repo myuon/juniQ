@@ -31,7 +31,7 @@ class KalmanCache():
             [0,0,0]
         ], np.float32)
         kalman.transitionMatrix = np.array([
-            [1,0.2,0],
+            [1,0.1,0],
             [0,1,0.5],
             [0,0,1]
         ], np.float32)
@@ -72,6 +72,7 @@ cache = KalmanCache([
     'ParamEyeBallX',
     'ParamEyeBallY',
     'ParamBodyAngleZ',
+    'ParamMouthOpenY',
 ])
 
 @app.route('/')
@@ -110,7 +111,7 @@ def recieve_image(encoded):
             'ParamEyeROpen': cache.predict('ParamEyeROpen'),
             'ParamEyeBallX': cache.predict('ParamEyeBallX'),
             'ParamEyeBallY': cache.predict('ParamEyeBallY'),
-            'ParamMouthOpenY': cache.predict('ParamMouthOpenY'),
+#            'ParamMouthOpenY': cache.predict('ParamMouthOpenY'),
             'ParamBodyAngleZ': cache.predict('ParamBodyAngleZ'),
         })
 

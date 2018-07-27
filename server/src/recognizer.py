@@ -188,15 +188,18 @@ def hand_predict(frame, face_rect):
   _, contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
   rects = [np.array(cv2.boundingRect(cv2.convexHull(contour))) for contour in contours]
 
-  rectR = max(filter(lambda r: r[0] < face_rect.left(), rects), key=lambda r: r[2] * r[3])
-  rectL = max(filter(lambda r: r[0] > face_rect.right(), rects), key=lambda r: r[2] * r[3])
+  rectR = list(filter(lambda r: r[0] < face_rect.left(), rects))
+  rectL = list(filter(lambda r: r[0] > face_rect.right(), rects))
+
+  rectR = max(rectR, key=lambda r: r[2] * r[3]) if len(rectR) > 0 else None
+  rectL = max(rectL, key=lambda r: r[2] * r[3]) if len(rectL) > 0 else None
 
   def center(rect):
     return (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
 
   return {
-    'right_hand': center(rectR) if rectR[2] * rectR[3] >= 2000 else None,
-    'left_hand': center(rectL) if rectL[2] * rectL[3] >= 2000 else None,
+    'right_hand': center(rectR) if rectR is not None and rectR[2] * rectR[3] >= 2000 else None,
+    'left_hand': center(rectL) if rectL is not None and rectL[2] * rectL[3] >= 2000 else None,
   }
 
 def get_body_pose(rect):
