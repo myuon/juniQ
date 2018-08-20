@@ -2,12 +2,14 @@ version: '3'
 services:
   gulp:
     build: ./viewer
+    image: myuon/juniq-viewer
     volumes:
       - ./viewer:/viewer
       - ./assets:/assets
 
   python:
     build: ./server
+    image: myuon/juniq-server
     ports:
       - "8329:3000"
     volumes:
