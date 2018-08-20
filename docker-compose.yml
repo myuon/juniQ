@@ -1,0 +1,16 @@
+version: '3'
+services:
+  gulp:
+    build: ./viewer
+    volumes:
+      - ./viewer:/viewer
+      - ./assets:/assets
+
+  python:
+    build: ./server
+    ports:
+      - "8329:3000"
+    volumes:
+      - ./server:/server
+      - ./viewer:/viewer
+

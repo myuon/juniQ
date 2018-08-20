@@ -193,7 +193,7 @@ let app = new App({
     scaler: [1.5, 1.5],
 });
 
-let socket = io('http://localhost:3000');
+let socket = io('/');
 socket.on('animate-by-params', (params: {[key: string]: string}) => {
     app.animateByParams(params);
 });

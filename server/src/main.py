@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO
 import cv2
@@ -9,7 +9,7 @@ import numpy as np
 
 import recognizer
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 CORS(app)
 sio = SocketIO(app)
 
@@ -131,6 +131,11 @@ def get_params():
 def post_params(methods=['POST']):
     request_animation(request.data)
     return jsonify(request.data)
+
+@app.route('/viewer/<path:path>')
+def viewer(path):
+    print(path)
+    return send_from_directory('/viewer', path)
 
 def request_animation(json):
     sio.emit('animate-by-params', json, json=True)
