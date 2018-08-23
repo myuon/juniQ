@@ -105,9 +105,9 @@ def eye_open_param(eye):
   h = (h1 + h2) / 2
 
   return (
-    0.0 if h < 1.5 else
-    1.0 if h > 4.0 else
-    (h - 1.5) / 2.5
+    0.0 if h < 3.0 else
+    1.0 if h > 8.0 else
+    (h - 3) / 5
   )
 
 def get_center(gray_img):
