@@ -156,8 +156,11 @@ def face_detect():
 
 def face_detect_loop():
     while True:
+        start = time.time()
         face_detect()
-        eventlet.sleep(0.033)
+        detection_time = time.time() - start
+
+        eventlet.sleep(0.017 - detection_time)
 
 if __name__ == '__main__':
     print('...listening on localhost:3000...')
