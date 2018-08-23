@@ -193,7 +193,7 @@ let app = new App({
     scaler: [1.5, 1.5],
 });
 
-let socket = io('/');
+let socket = io(window.location.host);
 socket.on('animate-by-params', (params: {[key: string]: string}) => {
     app.animateByParams(params);
 });

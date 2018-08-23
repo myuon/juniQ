@@ -15,4 +15,5 @@ services:
     volumes:
       - ./server:/server
       - ./viewer:/viewer
+    tty: true
 

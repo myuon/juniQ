@@ -1,8 +1,9 @@
-FROM node:latest
+FROM node:alpine
 
-WORKDIR /viewer
 RUN npm i -g gulp
+ADD . .
+WORKDIR /viewer
 RUN npm i
 
-CMD npm i gulp && npx gulp
+CMD npx gulp
 

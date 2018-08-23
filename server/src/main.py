@@ -6,6 +6,8 @@ from flask_socketio import SocketIO
 import cv2
 import base64
 import numpy as np
+import time
+import threading
 
 import recognizer
 
@@ -58,7 +60,7 @@ class KalmanCache():
 
         self.prevs[key] = value
         self.vels[key] = vel
-    
+
     def predict(self, key):
         return float(self.filters[key].predict()[0])
 
@@ -83,12 +85,47 @@ def index():
 def connect():
     print('socket connect!')
 
+@sio.on('disconnect')
+def disconnect():
+    print('socket disconnect!')
+
+@app.route('/params')
+def get_params():
+    request_animation(request.args)
+    return jsonify(request.args)
+
+@app.route('/params')
+def post_params(methods=['POST']):
+    request_animation(request.data)
+    return jsonify(request.data)
+
+@app.route('/viewer/<path:path>')
+def viewer(path):
+    return send_from_directory('/viewer', path)
+
+prev_frame = None
+thread_lock = threading.Lock()
+
 @sio.on('img')
 def recieve_image(encoded):
+    global prev_frame
+    global thread_lock
+    thread_lock.acquire()
     buffer = base64.b64decode(encoded.split(',')[1])
-    img = cv2.imdecode(np.fromstring(buffer, np.uint8), cv2.IMREAD_COLOR)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    result = recognizer.predict(gray, img)
+    prev_frame = cv2.imdecode(np.fromstring(buffer, np.uint8), cv2.IMREAD_COLOR)
+    thread_lock.release()
+
+    face_detect()
+
+def request_animation(json):
+    sio.emit('animate-by-params', json, json=True)
+
+def face_detect():
+    global prev_frame
+    if prev_frame is None: return
+
+    gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+    result = recognizer.predict(gray, prev_frame)
 
     if result is not None:
         cache.correct('ParamAngleX', -result['head_pose'][0] / 2)
@@ -98,7 +135,7 @@ def recieve_image(encoded):
         cache.correct('ParamEyeROpen', result['right_eye'])
         cache.correct('ParamMouthOpenY', result['mouse'])
         cache.correct('ParamBodyAngleZ', -result['body_pose'] / 3)
-        
+
         if result['eye_center'][1] is not None:
             cache.correct('ParamEyeBallX', -result['eye_center'][1][0])
             cache.correct('ParamEyeBallY', -result['eye_center'][1][1])
@@ -122,24 +159,17 @@ def recieve_image(encoded):
             'contour': result['contour'],
         }, json=True)
 
-@app.route('/params')
-def get_params():
-    request_animation(request.args)
-    return jsonify(request.args)
-
-@app.route('/params')
-def post_params(methods=['POST']):
-    request_animation(request.data)
-    return jsonify(request.data)
-
-@app.route('/viewer/<path:path>')
-def viewer(path):
-    print(path)
-    return send_from_directory('/viewer', path)
-
-def request_animation(json):
-    sio.emit('animate-by-params', json, json=True)
+def face_detect_loop():
+    while True:
+        print('hey')
+#        face_detect()
+        time.sleep(1)
 
 if __name__ == '__main__':
     print('...listening on localhost:3000...')
+    thread = threading.Thread(target=face_detect_loop)
+
+    thread.start()
     sio.run(app, host='0.0.0.0', port=3000)
+
+

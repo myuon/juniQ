@@ -32,7 +32,7 @@ window.addEventListener('message', (event: MessageEvent) => {
 
       let json: {[key:string]: any} = {};
       json[element.id] = element.value;
-      get_request(`/params?${element.id}=${element.value}`);
+      get_request(`${window.location.host}/params?${element.id}=${element.value}`);
     });
   }
 }, { once: true });
@@ -126,7 +126,7 @@ let audioContext: AudioContext = new ((
 let video = document.getElementById('video') as HTMLVideoElement;
 
 getUserMedia({video: true, audio: true}, (stream: MediaStream) => {
-  let socket = io('/');
+  let socket = io(window.location.host);
   video.src = URL.createObjectURL(stream);
 
   let source = audioContext.createMediaStreamSource(stream);
@@ -135,7 +135,7 @@ getUserMedia({video: true, audio: true}, (stream: MediaStream) => {
 
   // 口パクのfpsどれくらいにしたもんか…
   setInterval(() => {
-    get_request(`/params?ParamMouthOpenY=${Math.min(meter.volume * 200, 1)}`);
+    get_request(`${window.location.host}/params?ParamMouthOpenY=${Math.min(meter.volume * 200, 1)}`);
   }, 50);
 
   socket.on('tracker', (json: { parts: FacialParts, reproject: any, eye_center: any, contour: any }) => {
@@ -237,7 +237,7 @@ getUserMedia({video: true, audio: true}, (stream: MediaStream) => {
 
     setInterval(() => {
       context.drawImage(video, 0, 0, 320, 240);
-      socket.emit('img', canvas.toDataURL('image/jpeg', 0.6));
+      socket.emit('img', canvas.toDataURL('image/jpeg', 0.3));
     }, 16);
   });
 }, (err: any) => {
