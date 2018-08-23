@@ -175,7 +175,7 @@ def detect_eye_center(img, shape):
 
 def mouse_open_param(shape):
   height = np.linalg.norm(shape[66] - shape[62])
-  return (height - 3) / 7
+  return (height - 6) / 14
 
 def hand_predict(frame, face_rect):
   hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV_FULL)

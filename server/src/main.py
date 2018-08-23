@@ -110,7 +110,7 @@ prev_frame = None
 def recieve_image(encoded):
     global prev_frame
     buffer = base64.b64decode(encoded.split(',')[1])
-    prev_frame = cv2.imdecode(np.fromstring(buffer, np.uint8), cv2.IMREAD_COLOR)
+    prev_frame = cv2.imdecode(np.frombuffer(buffer, np.uint8), cv2.IMREAD_COLOR)
 
 def request_animation(json):
     sio.emit('animate-by-params', json, json=True)
