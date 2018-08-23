@@ -7,7 +7,8 @@ import cv2
 import base64
 import numpy as np
 import time
-import threading
+import eventlet
+eventlet.monkey_patch()
 
 import recognizer
 
@@ -104,18 +105,12 @@ def viewer(path):
     return send_from_directory('/viewer', path)
 
 prev_frame = None
-thread_lock = threading.Lock()
 
 @sio.on('img')
 def recieve_image(encoded):
     global prev_frame
-    global thread_lock
-    thread_lock.acquire()
     buffer = base64.b64decode(encoded.split(',')[1])
     prev_frame = cv2.imdecode(np.fromstring(buffer, np.uint8), cv2.IMREAD_COLOR)
-    thread_lock.release()
-
-    face_detect()
 
 def request_animation(json):
     sio.emit('animate-by-params', json, json=True)
@@ -161,15 +156,12 @@ def face_detect():
 
 def face_detect_loop():
     while True:
-        print('hey')
-#        face_detect()
-        time.sleep(1)
+        face_detect()
+        eventlet.sleep(0.033)
 
 if __name__ == '__main__':
     print('...listening on localhost:3000...')
-    thread = threading.Thread(target=face_detect_loop)
-
-    thread.start()
+    eventlet.spawn(face_detect_loop)
     sio.run(app, host='0.0.0.0', port=3000)
 
 
