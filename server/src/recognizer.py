@@ -205,7 +205,7 @@ def hand_predict(frame, face_rect):
 def get_body_pose(rect):
   # center_of_window = (160,120)
   center_of_face = (rect.left() + rect.width() / 2, rect.top() + rect.height() / 2)
-  return 90 - (np.arctan2(240 - center_of_face[1], center_of_face[0] - 160)) * 180 / np.pi
+  return 90 - (np.arctan2(480 - center_of_face[1], center_of_face[0] - 360)) * 180 / np.pi
 
 should_detect = 0
 face_rects = []
