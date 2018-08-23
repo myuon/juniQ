@@ -119,8 +119,9 @@ def face_detect():
     global prev_frame
     if prev_frame is None: return
 
-    gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-    result = recognizer.predict(gray, prev_frame)
+    resize = (0.9,0.9)
+    gray = cv2.resize(cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY), None, fx=resize[0], fy=resize[1])
+    result = recognizer.predict(gray, prev_frame, resize)
 
     if result is not None:
         cache.correct('ParamAngleX', -result['head_pose'][0] / 2)
@@ -143,7 +144,7 @@ def face_detect():
             'ParamEyeROpen': cache.predict('ParamEyeROpen'),
             'ParamEyeBallX': cache.predict('ParamEyeBallX'),
             'ParamEyeBallY': cache.predict('ParamEyeBallY'),
-#            'ParamMouthOpenY': cache.predict('ParamMouthOpenY'),
+            'ParamMouthOpenY': cache.predict('ParamMouthOpenY'),
             'ParamBodyAngleZ': cache.predict('ParamBodyAngleZ'),
         })
 

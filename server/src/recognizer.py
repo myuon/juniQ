@@ -210,7 +210,7 @@ def get_body_pose(rect):
 should_detect = 0
 face_rects = []
 
-def predict(frame, original):
+def predict(frame, original, resize):
   global should_detect, face_rects
 
   if should_detect == 0:
@@ -218,7 +218,14 @@ def predict(frame, original):
   should_detect = (should_detect + 1) % 3
 
   if len(face_rects) > 0:
-    shape = predictor(frame, face_rects[0])
+    face_rect = dlib.rectangle(
+      int(face_rects[0].left() * (1 / resize[0])),
+      int(face_rects[0].top() * (1 / resize[1])),
+      int(face_rects[0].right() * (1 / resize[0])),
+      int(face_rects[0].bottom() * (1 / resize[1])),
+    )
+
+    shape = predictor(original, face_rect)
     shape = face_utils.shape_to_np(shape)
     reproject_dst, rotation_mat, rotation_vec, translation_vec = decompose(shape)
     original_parts_list = create_parts_list(np.array([np.dot(rotation_mat, np.array([p[0], p[1], 0])) for p in shape]))
@@ -228,11 +235,12 @@ def predict(frame, original):
     return {
       'reproject_dst': list(map(lambda pair: [reproject_dst[pair[0]], reproject_dst[pair[1]]], line_pairs)),
       'head_pose': get_head_pose_angles(rotation_mat, rotation_vec, translation_vec),
-      'body_pose': get_body_pose(face_rects[0]),
+      'body_pose': get_body_pose(face_rect),
       'right_eye': eye_open_param(original_parts_list['right_eye']),
       'left_eye': eye_open_param(original_parts_list['left_eye']),
       'parts_list': create_parts_list(shape),
       'eye_center': center,
       'mouse': mouse_open_param(shape),
-      'contour': hand_predict(original, face_rects[0]),
+      'contour': hand_predict(original, face_rect),
+      'face_rect': face_rect,
     }

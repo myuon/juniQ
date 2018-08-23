@@ -236,7 +236,7 @@ getUserMedia({video: true, audio: true}, (stream: MediaStream) => {
     let context = canvas.getContext('2d');
 
     setInterval(() => {
-      context.drawImage(video, 0, 0, 320, 240);
+      context.drawImage(video, 0, 0, 640, 480);
       socket.emit('img', canvas.toDataURL('image/jpeg', 0.3));
     }, 16);
   });
