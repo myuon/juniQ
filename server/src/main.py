@@ -111,6 +111,7 @@ def recieve_image(encoded):
     global prev_frame
     buffer = base64.b64decode(encoded.split(',')[1])
     prev_frame = cv2.imdecode(np.frombuffer(buffer, np.uint8), cv2.IMREAD_COLOR)
+    prev_frame = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
 
 def request_animation(json):
     sio.emit('animate-by-params', json, json=True)
@@ -120,7 +121,7 @@ def face_detect():
     if prev_frame is None: return
 
     resize = (0.9,0.9)
-    gray = cv2.resize(cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY), None, fx=resize[0], fy=resize[1])
+    gray = cv2.resize(prev_frame, None, fx=resize[0], fy=resize[1])
     result = recognizer.predict(gray, prev_frame, resize)
 
     if result is not None:
@@ -152,7 +153,7 @@ def face_detect():
             'parts': result['parts_list'],
             'reproject': result['reproject_dst'],
             'eye_center': result['eye_center'][0],
-            'contour': result['contour'],
+            'contour': {} #result['contour'],
         }, json=True)
 
 def face_detect_loop():

@@ -230,7 +230,7 @@ def predict(frame, original, resize):
     reproject_dst, rotation_mat, rotation_vec, translation_vec = decompose(shape)
     original_parts_list = create_parts_list(np.array([np.dot(rotation_mat, np.array([p[0], p[1], 0])) for p in shape]))
 
-    center = detect_eye_center(frame, shape)
+    center = detect_eye_center(original, shape)
 
     return {
       'reproject_dst': list(map(lambda pair: [reproject_dst[pair[0]], reproject_dst[pair[1]]], line_pairs)),
@@ -241,6 +241,6 @@ def predict(frame, original, resize):
       'parts_list': create_parts_list(shape),
       'eye_center': center,
       'mouse': mouse_open_param(shape),
-      'contour': hand_predict(original, face_rect),
+#      'contour': hand_predict(original, face_rect),
       'face_rect': face_rect,
     }
