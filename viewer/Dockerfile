@@ -5,5 +5,5 @@ ADD . .
 WORKDIR /viewer
 RUN npm i
 
-CMD npx gulp
+CMD npm i gulp && npx gulp
 
