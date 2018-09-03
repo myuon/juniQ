@@ -69,7 +69,7 @@ class App {
             .add('physics', config.physics, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON, crossOrigin: true })
             .add('empty_motion', config.empty_motion, { xhrType: PIXI.loaders.Resource.XHR_RESPONSE_TYPE.JSON, crossOrigin: true })
             .load((loader: PIXI.loaders.Loader, resources: PIXI.loaders.ResourceDictionary) => {
-                this.app = new PIXI.Application(this.size[0], this.size[1], { backgroundColor: 0x1099bb });
+                this.app = new PIXI.Application(this.size[0], this.size[1], { backgroundColor: 0x00ff00 });
                 document.body.appendChild(this.app.view);
 
                 let moc = LIVE2DCUBISMCORE.Moc.fromArrayBuffer(resources['moc'].data);

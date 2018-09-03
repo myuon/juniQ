@@ -145,7 +145,7 @@ def face_detect():
             'ParamEyeROpen': cache.predict('ParamEyeROpen'),
             'ParamEyeBallX': cache.predict('ParamEyeBallX'),
             'ParamEyeBallY': cache.predict('ParamEyeBallY'),
-            'ParamMouthOpenY': cache.predict('ParamMouthOpenY'),
+#            'ParamMouthOpenY': cache.predict('ParamMouthOpenY'),
             'ParamBodyAngleZ': cache.predict('ParamBodyAngleZ'),
         })
 
@@ -162,7 +162,7 @@ def face_detect_loop():
         face_detect()
         detection_time = time.time() - start
 
-        eventlet.sleep(0.017 - detection_time)
+        eventlet.sleep(max(0.017 - detection_time, 0))
 
 if __name__ == '__main__':
     print('...listening on localhost:3000...')

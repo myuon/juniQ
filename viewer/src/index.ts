@@ -32,7 +32,7 @@ window.addEventListener('message', (event: MessageEvent) => {
 
       let json: {[key:string]: any} = {};
       json[element.id] = element.value;
-      get_request(`${window.location.host}/params?${element.id}=${element.value}`);
+      get_request(`http://${window.location.host}/params?${element.id}=${element.value}`);
     });
   }
 }, { once: true });
@@ -135,7 +135,7 @@ getUserMedia({video: true, audio: true}, (stream: MediaStream) => {
 
   // 口パクのfpsどれくらいにしたもんか…
   setInterval(() => {
-    get_request(`${window.location.host}/params?ParamMouthOpenY=${Math.min(meter.volume * 200, 1)}`);
+    get_request(`http://${window.location.host}/params?ParamMouthOpenY=${Math.min(meter.volume * 200, 1)}`);
   }, 50);
 
   socket.on('tracker', (json: { parts: FacialParts, reproject: any, eye_center: any, contour: any }) => {
