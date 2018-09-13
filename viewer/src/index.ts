@@ -127,7 +127,7 @@ let video = document.getElementById('video') as HTMLVideoElement;
 
 getUserMedia({video: true, audio: true}, (stream: MediaStream) => {
   let socket = io(window.location.host);
-  video.src = URL.createObjectURL(stream);
+  video.srcObject = stream;
 
   let source = audioContext.createMediaStreamSource(stream);
   let meter = new AudioVolume(audioContext);
