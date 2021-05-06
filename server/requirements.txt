@@ -5,7 +5,7 @@ dlib==19.15.0
 eventlet==0.23.0
 face-recognition-models==0.3.0
 Flask==1.0.2
-Flask-Cors==3.0.6
+Flask-Cors==3.0.9
 Flask-SocketIO==3.0.1
 greenlet==0.4.13
 idna==2.7
