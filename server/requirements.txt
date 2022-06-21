@@ -13,7 +13,7 @@ imutils==0.4.6
 itsdangerous==0.24
 Jinja2==2.10
 MarkupSafe==1.0
-numpy==1.14.5
+numpy==1.22.0
 opencv-python==3.4.2.17
 Pillow==5.2.0
 python-engineio==2.2.0
